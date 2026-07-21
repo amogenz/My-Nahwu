@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PRIMARY METADATA -->
+    <title>My Nahwu</title>
+    <meta name="title" content="My Nahwu — Belajar Nahwu Shorof Interaktif">
+    <meta name="description" content="Aplikasi belajar Nahwu Shorof & analisis I'rob interaktif berbasis antarmuka iOS Light Mode. Powered by Amogenz.">
+    <meta name="keywords" content="My Nahwu, Nahwu Shorof, Belajar Irob, Kitab Jurumiyah, Imrithi, Alfiyah, Amogenz">
+    <meta name="author" content="Amogenz Lab">
+    <meta name="theme-color" content="#F2F2F7">
+    
+    <link rel="canonical" href="https://nahwu.amogenz.my.id">
+
+    <!-- OPEN GRAPH / SOCIAL METADATA -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nahwu.amogenz.my.id">
+    <meta property="og:title" content="My Nahwu — Belajar Nahwu Shorof Interaktif">
+    <meta property="og:description" content="Aplikasi belajar Nahwu Shorof & analisis I'rob interaktif berbasis antarmuka iOS Light Mode.">
+    <meta property="og:image" content="https://i.ibb.co.com/n8KZM3qm/Nahwu.webp">
+
+    <link rel="icon" type="image/webp" href="https://i.ibb.co.com/n8KZM3qm/Nahwu.webp">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- HTML2CANVAS UNTUK EKSPOR PNG KARTU HASIL -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- BACKGROUND WALLPAPER LAYERS FULLSCREEN -->
+    <div id="app-bg-layer"></div>
+    <div id="app-bg-overlay"></div>
+
+    <!-- IOS FLOATING TOAST NOTIFICATION -->
+    <div id="ios-toast" class="ios-toast">
+        <i class="ph-bold ph-check-circle"></i>
+        <span id="toast-msg">Pengaturan tersimpan</span>
+    </div>
+
+    <!-- FULLSCREEN SPLASH SCREEN WITH LOGO -->
+    <div id="splash-screen">
+        <div class="splash-body">
+            <img src="https://i.ibb.co.com/n8KZM3qm/Nahwu.webp" alt="My Nahwu Logo" class="splash-app-icon" />
+            <h1 class="splash-brand">My Nahwu</h1>
+            <p class="splash-sub">From Amogenz</p>
+            <div class="ios-spinner"></div>
+        </div>
+    </div> 
+
+    <div class="app-viewport">
+        <!-- IOS LIGHT NAVBAR -->
+        <header class="ios-navbar">
+            <div class="nav-header-card">
+                <div class="nav-brand-pill">
+                    <img src="https://i.ibb.co.com/n8KZM3qm/Nahwu.webp" alt="My Nahwu" class="nav-logo">
+                    <div class="brand-pill-text">
+                        <span class="pill-title">My Nahwu</span>
+                        <span class="pill-author">Amogenz Lab</span>
+                    </div>
+                </div>
+                <a href="https://amogenz.xyz" target="_blank" class="ios-globe-link" title="Web Amogenz">
+                    <i class="ph ph-globe"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- MAIN APP CONTENT -->
+        <main class="ios-main-container">
+            
+            <!-- PAGE 1: HOME -->
+            <div id="page-home" class="page-content active">
+                
+                <!-- VIEW START -->
+                <div id="view-start" class="ios-view-stack">
+                    <div class="ios-hero-header">
+                        <div class="avatar-badge-wrapper">
+                            <img src="https://i.ibb.co.com/VYv0QJVK/ammo-ai.webp" alt="User PP" id="hero-avatar" class="hero-avatar">
+                            <span id="user-rank-pill" class="rank-pill-hero">PRAJURIT</span>
+                        </div>
+                        <h2 id="greeting-title">Assalamu'alaikum</h2>
+                        <p>Saya <b>Ammo</b>. Mari mengasah pemahaman I'rob dan kaidah kitab Nahwu Shorof secara interaktif.</p>
+                    </div>
+
+                    <!-- MARQUEE TICKER BANNER HOME -->
+                    <div class="ios-ticker-bar">
+                        <div class="ticker-dot"></div>
+                        <div class="ticker-viewport">
+                            <div class="ticker-content marquee-text">
+                                من تبحر فى علم النحو اهتدى الى كل العلوم - Barangsiapa mendalami ilmu Nahwu, akan mendapat petunjuk ke segala ilmu.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INSET GROUPED SELECTOR -->
+                    <div class="ios-inset-group">
+                        <div class="group-header">PILIH TINGKATAN KITAB</div>
+                        <div class="ios-grid-options">
+                            <button class="ios-grid-item active" data-db="lv1">
+                                <i class="ph ph-book-open"></i>
+                                <span>Jurumiyah</span>
+                                <small>Level 1 · Pemula</small>
+                            </button>
+
+                            <button class="ios-grid-item" data-db="lv2">
+                                <i class="ph ph-books"></i>
+                                <span>Imrithi</span>
+                                <small>Level 2 · Menengah</small>
+                            </button>
+
+                            <button class="ios-grid-item" data-db="alfiyah-isim">
+                                <i class="ph ph-text-columns"></i>
+                                <span>Alfiyah Isim</span>
+                                <small>Lanjut · Isim</small>
+                            </button>
+
+                            <button class="ios-grid-item" data-db="alfiyah-fiil">
+                                <i class="ph ph-lightning"></i>
+                                <span>Alfiyah Fi'il</span>
+                                <small>Lanjut · Fi'il</small>
+                            </button>
+
+                            <button class="ios-grid-item full-span" data-db="shorof">
+                                <i class="ph ph-text-aa"></i>
+                                <span>Shorof</span>
+                                <small>Tashrif & I'lal</small>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="ios-btn-blue" id="btn-start">Mulai Belajar</button>
+                </div>
+
+                <!-- VIEW LOADING SOAL -->
+                <div id="view-loading" class="ios-view-stack center-align" style="display: none;">
+                    <img src="https://i.ibb.co.com/n8KZM3qm/Nahwu.webp" alt="Loading My Nahwu" class="loading-app-icon">
+                    <div class="ios-spinner large"></div>
+                    <p class="loading-label">Menyiapkan Soal...</p>
+                </div>
+
+                <!-- VIEW QUIZ -->
+                <div id="view-quiz" class="ios-quiz-wrapper" style="display: none;">
+                    <!-- IOS TOP NAV BACK & SCORE BAR -->
+                    <div class="ios-top-nav-bar">
+                        <button class="ios-nav-back" id="btn-back-home">
+                            <i class="ph-bold ph-caret-left"></i>
+                            <span>Home</span>
+                        </button>
+                        <div class="quiz-score-tracker">
+                            <span class="score-correct"><i class="ph-bold ph-check"></i> <span id="score-correct-val">0</span></span>
+                            <span class="score-wrong"><i class="ph-bold ph-x"></i> <span id="score-wrong-val">0</span></span>
+                        </div>
+                    </div>
+
+                    <!-- USER PP, NAME, & RANK BADGE -->
+                    <div class="quiz-user-badge-bar">
+                        <img src="https://i.ibb.co.com/VYv0QJVK/ammo-ai.webp" alt="User PP" id="quiz-user-avatar" class="quiz-user-avatar">
+                        <div class="quiz-user-meta">
+                            <span id="quiz-user-name" class="quiz-user-name">Pengguna My Nahwu</span>
+                            <span id="quiz-user-rank" class="quiz-user-rank-tag">PRAJURIT</span>
+                        </div>
+                    </div>
+
+                    <!-- MARQUEE TICKER TAMPIL DI ATAS KOTAK SOAL -->
+                    <div class="ios-ticker-bar quiz-ticker">
+                        <div class="ticker-dot"></div>
+                        <div class="ticker-viewport">
+                            <div class="ticker-content marquee-text">
+                                من تبحر فى علم النحو اهتدى الى كل العلوم - Barangsiapa mendalami ilmu Nahwu, akan mendapat petunjuk ke segala ilmu.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ios-card-sheet">
+                        <div class="sheet-top">
+                            <span id="badge-level" class="ios-pill-level">Jurumiyah</span>
+                            <span id="badge-step" class="ios-pill-step">LANGKAH 1</span>
+                        </div>
+
+                        <!-- INDIKATOR JIKA PERNAH SALAH -->
+                        <div id="history-warning" class="ios-history-alert" style="display: none;">
+                            <i class="ph-bold ph-warning-circle"></i>
+                            <span>Kamu pernah salah pada langkah ini sebelumnya.</span>
+                        </div>
+                        
+                        <div id="ctx-sentence" class="quiz-sentence-context">Memuat...</div>
+                        <div id="ctx-word" class="quiz-target-arabic">...</div>
+                        
+                        <div class="quiz-prompt">
+                            <p id="question-text">Memuat pertanyaan...</p>
+                        </div>
+
+                        <div id="options-container" class="ios-options-list"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PAGE 2: KARTU PRESTASI & BADGE -->
+            <div id="page-kartu" class="page-content">
+                <div class="ios-view-stack">
+                    <h2 class="ios-page-title">Koleksi Prestasi & Badge</h2>
+
+                    <!-- OVERVIEW PROGRES CARD -->
+                    <div class="rank-progress-card">
+                        <div class="rpc-top">
+                            <div>
+                                <small>PANGKAT SAAT INI</small>
+                                <h3 id="badge-page-rank-title" class="rank-title-svg">PRAJURIT</h3>
+                            </div>
+                            <span id="badge-page-score-pill" class="rpc-score-pill">0 Jawaban Benar</span>
+                        </div>
+                        <div class="rpc-bar-wrapper">
+                            <div id="rpc-bar-fill" class="rpc-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <p id="rpc-next-text" class="rpc-next-text">Selesaikan 20 soal lagi untuk naik ke JENDRAL</p>
+                    </div>
+
+                    <!-- LIST BADGE PANGKAT -->
+                    <div class="ios-inset-group">
+                        <div class="group-header">DAFTAR TINGKATAN PANGKAT</div>
+                        <div class="badges-grid-list">
+                            
+                            <!-- BADGE 1: KAISAR -->
+                            <div id="badge-card-kaisar" class="badge-item-card locked">
+                                <div class="bic-left">
+                                    <div class="bic-icon-box" id="bic-icon-kaisar"></div>
+                                    <div class="bic-text">
+                                        <h4>Kaisar</h4>
+                                        <p>100+ Jawaban Benar</p>
+                                    </div>
+                                </div>
+                                <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
+                            </div>
+
+                            <!-- BADGE 2: PANGLIMA BESAR -->
+                            <div id="badge-card-panglima" class="badge-item-card locked">
+                                <div class="bic-left">
+                                    <div class="bic-icon-box" id="bic-icon-panglima"></div>
+                                    <div class="bic-text">
+                                        <h4>Panglima Besar</h4>
+                                        <p>50 - 99 Jawaban Benar</p>
+                                    </div>
+                                </div>
+                                <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
+                            </div>
+
+                            <!-- BADGE 3: JENDRAL -->
+                            <div id="badge-card-jendral" class="badge-item-card locked">
+                                <div class="bic-left">
+                                    <div class="bic-icon-box" id="bic-icon-jendral"></div>
+                                    <div class="bic-text">
+                                        <h4>Jendral</h4>
+                                        <p>20 - 49 Jawaban Benar</p>
+                                    </div>
+                                </div>
+                                <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
+                            </div>
+
+                            <!-- BADGE 4: PRAJURIT -->
+                            <div id="badge-card-prajurit" class="badge-item-card unlocked">
+                                <div class="bic-left">
+                                    <div class="bic-icon-box" id="bic-icon-prajurit"></div>
+                                    <div class="bic-text">
+                                        <h4>Prajurit</h4>
+                                        <p>0 - 19 Jawaban Benar</p>
+                                    </div>
+                                </div>
+                                <span class="bic-status unlocked"><i class="ph-bold ph-check"></i> Terbuka</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <!-- PAGE 3: INFO & SETTINGS -->
+            <div id="page-info" class="page-content">
+                <div class="ios-view-stack">
+                    <h2 class="ios-page-title">Pengaturan</h2>
+
+                    <!-- SETTINGS LIST -->
+                    <div class="ios-inset-group">
+                        <div class="group-header">PENGATURAN UMUM</div>
+                        <div class="ios-inset-list">
+                            <div class="list-item">
+                                <div class="item-left">
+                                    <div class="item-icon-box blue">
+                                        <i class="ph-fill ph-speaker-high"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Suara Efek</span>
+                                        <small>Audio saat menjawab soal</small>
+                                    </div>
+                                </div>
+                                <label class="ios-switch">
+                                    <input type="checkbox" id="sound-toggle" checked>
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SETTINGS PERSONALIZE -->
+                    <div class="ios-inset-group" style="margin-top: 6px;">
+                        <div class="group-header">PERSONALISASI PROFIL & WALLPAPER</div>
+                        <div class="ios-inset-list">
+                            
+                            <!-- NAMA PANGGILAN -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box purple">
+                                        <i class="ph-fill ph-user-circle"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Nama Panggilan</span>
+                                        <small>Tampil di profil & kartu rapor</small>
+                                    </div>
+                                </div>
+                                <div class="input-save-group">
+                                    <input type="text" id="user-name-input" class="ios-input-text" placeholder="Ketik nama kamu..." maxlength="18">
+                                    <button id="btn-save-name" class="ios-btn-pill-save">Simpan</button>
+                                </div>
+                            </div>
+
+                            <!-- FOTO PROFIL CUSTOM -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box blue">
+                                        <i class="ph-fill ph-camera"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Foto Profil (PP)</span>
+                                        <small>Ubah foto profil pengguna</small>
+                                    </div>
+                                </div>
+                                <div class="ios-action-grid">
+                                    <label for="pp-upload-input" class="ios-pill-btn">
+                                        <i class="ph-bold ph-upload-simple"></i> Upload PP
+                                    </label>
+                                    <input type="file" id="pp-upload-input" accept="image/*" style="display:none;">
+                                    
+                                    <button id="btn-reset-pp" class="ios-pill-btn danger">
+                                        <i class="ph-bold ph-arrow-counter-clockwise"></i> Reset PP
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- CUSTOM WALLPAPER HP -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box green">
+                                        <i class="ph-fill ph-image"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Wallpaper Latar</span>
+                                        <small>Foto dari galeri HP kamu</small>
+                                    </div>
+                                </div>
+                                <div class="ios-action-grid">
+                                    <label for="bg-upload-input" class="ios-pill-btn">
+                                        <i class="ph-bold ph-image-square"></i> Pilih Latar
+                                    </label>
+                                    <input type="file" id="bg-upload-input" accept="image/*" style="display:none;">
+                                    
+                                    <button id="btn-reset-bg" class="ios-pill-btn danger">
+                                        <i class="ph-bold ph-trash"></i> Reset Latar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- WARNA AKSEN iOS -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box orange">
+                                        <i class="ph-fill ph-palette"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Warna Aksen Aplikasi</span>
+                                        <small>Pilih warna tombol & indikator</small>
+                                    </div>
+                                </div>
+                                <div class="accent-color-picker">
+                                    <button class="color-dot blue active" data-color="#007AFF" title="System Blue"></button>
+                                    <button class="color-dot green" data-color="#34C759" title="Emerald Green"></button>
+                                    <button class="color-dot purple" data-color="#AF52DE" title="Indigo Purple"></button>
+                                    <button class="color-dot orange" data-color="#FF9500" title="Sunset Orange"></button>
+                                </div>
+                            </div>
+
+                            <!-- SLIDER 1: KEJERNIHAN WALLPAPER -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box blue">
+                                        <i class="ph-fill ph-sliders"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Kegelapan Lapisan Wallpaper</span>
+                                        <small>Makin kecil, wallpaper makin terang</small>
+                                    </div>
+                                </div>
+                                <div class="ios-slider-box">
+                                    <input type="range" id="slider-bg-opacity" min="0" max="80" value="15" class="ios-range">
+                                    <span id="val-bg-opacity" class="range-val">15%</span>
+                                </div>
+                            </div>
+
+                            <!-- SLIDER 2: BLUR KARTU -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box purple">
+                                        <i class="ph-fill ph-drop"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Efek Blur Kartu (Frosted Glass)</span>
+                                        <small>Set ke 0px agar wallpaper tembus jernih</small>
+                                    </div>
+                                </div>
+                                <div class="ios-slider-box">
+                                    <input type="range" id="slider-card-blur" min="0" max="20" value="6" class="ios-range">
+                                    <span id="val-card-blur" class="range-val">6px</span>
+                                </div>
+                            </div>
+
+                            <!-- PRESET GRADIENT -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box orange">
+                                        <i class="ph-fill ph-paint-brush-broad"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Preset Latar Belakang</span>
+                                        <small>Pilih warna gradasi iOS</small>
+                                    </div>
+                                </div>
+                                <div class="preset-bg-picker">
+                                    <button class="preset-dot default active" data-bg="default" title="Default iOS"></button>
+                                    <button class="preset-dot gradient-1" data-bg="linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" title="Sky Blue"></button>
+                                    <button class="preset-dot gradient-2" data-bg="linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)" title="Soft Purple"></button>
+                                    <button class="preset-dot gradient-3" data-bg="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" title="Peach Pink"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PENYIMPANAN CACHE & RESET DATA -->
+                    <div class="ios-inset-group" style="margin-top: 6px;">
+                        <div class="group-header">PENYIMPANAN & PEMBERSIHAN MEMORI</div>
+                        <div class="ios-inset-list">
+                            <div class="list-item">
+                                <div class="item-left">
+                                    <div class="item-icon-box blue">
+                                        <i class="ph-fill ph-hard-drive"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Penggunaan Memori Lokal</span>
+                                        <small>Total ukuran data tersimpan</small>
+                                    </div>
+                                </div>
+                                <span id="storage-size-val" class="storage-size-badge">0.00 KB</span>
+                            </div>
+
+                            <div class="list-item">
+                                <button id="btn-clear-cache" class="ios-btn-danger-full">
+                                    <i class="ph-bold ph-trash"></i> Hapus Cache & Reset Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ios-inset-group" style="margin-top: 6px;">
+                        <div class="group-header">KOMUNITAS & DISKUSI</div>
+                        <div class="ios-inset-list">
+                            <a href="https://www.instagram.com/amooogang" target="_blank" class="list-item link">
+                                <div class="item-left">
+                                    <div class="item-icon-box purple">
+                                        <i class="ph-fill ph-instagram-logo"></i>
+                                    </div>
+                                    <span class="item-title">Instagram Developer</span>
+                                </div>
+                                <i class="ph-bold ph-caret-right arrow-icon"></i>
+                            </a>
+
+                            <a href="https://ig.me/j/Aba3gOVvhUdnW2g1/" target="_blank" class="list-item link">
+                                <div class="item-left">
+                                    <div class="item-icon-box green">
+                                        <i class="ph-fill ph-chats-circle"></i>
+                                    </div>
+                                    <span class="item-title">Grup Masukan My Nahwu</span>
+                                </div>
+                                <i class="ph-bold ph-caret-right arrow-icon"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <p class="ios-footer-copyright">My Nahwu · Amogenz.Inc © 2026</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- IOS ALERT MODAL -->
+        <div id="modal-feedback" class="ios-modal-overlay">
+            <div class="ios-alert-box" id="modal-card">
+                <div id="fb-icon" class="alert-icon-box"></div>
+                <h3 id="fb-title" class="alert-title">Benar</h3>
+                <p id="fb-msg" class="alert-msg">Penjelasan...</p>
+                <div class="alert-actions" id="modal-actions">
+                    <button id="fb-btn-cancel" class="alert-btn cancel" style="display: none;">Batal</button>
+                    <button id="fb-btn" class="alert-btn">Lanjut</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL RAPOR / SERTIFIKAT KARTU HASIL -->
+        <div id="modal-result" class="ios-modal-overlay">
+            <div class="ios-result-modal-container">
+                
+                <!-- CARD YANG AKAN DI-EXPORT JADI PNG -->
+                <div id="result-card-render" class="result-card-marketing">
+                    <div class="rc-header">
+                        <div class="rc-brand">
+                            <img src="https://i.ibb.co.com/n8KZM3qm/Nahwu.webp" alt="My Nahwu Logo" class="rc-logo">
+                            <div>
+                                <h3>My Nahwu</h3>
+                                <p>Rapor Analisis I'rob Kitab</p>
+                            </div>
+                        </div>
+                        <span class="rc-badge-pill">LULUS LAFADZ</span>
+                    </div>
+
+                    <div class="rc-user-info">
+                        <img id="rc-user-pp" src="https://i.ibb.co.com/VYv0QJVK/ammo-ai.webp" alt="User Avatar" class="rc-avatar">
+                        <div class="rc-user-details">
+                            <div class="rc-name-rank-row">
+                                <h4 id="rc-user-name">Pengguna My Nahwu</h4>
+                                <span id="rc-user-rank-badge" class="rc-rank-pill">PRAJURIT</span>
+                            </div>
+                            <span id="rc-date">21 Juli 2026</span>
+                        </div>
+                    </div>
+
+                    <div class="rc-stats-grid">
+                        <div class="rc-stat-box">
+                            <small>KITAB / LEVEL</small>
+                            <span id="rc-level-val">Jurumiyah</span>
+                        </div>
+                        <div class="rc-stat-box green">
+                            <small>JAWABAN BENAR</small>
+                            <span id="rc-correct-val">10</span>
+                        </div>
+                        <div class="rc-stat-box red">
+                            <small>SALAH</small>
+                            <span id="rc-wrong-val">2</span>
+                        </div>
+                        <div class="rc-stat-box blue">
+                            <small>AKURASI</small>
+                            <span id="rc-accuracy-val">83%</span>
+                        </div>
+                    </div>
+
+                    <div class="rc-quote-box">
+                        <p class="rc-arabic">من تبحر فى علم النحو اهتدى الى كل العلوم</p>
+                        <p class="rc-translation">"Barangsiapa mendalami ilmu Nahwu, akan mendapat petunjuk ke segala ilmu."</p>
+                    </div>
+
+                    <div class="rc-footer-marketing">
+                        <div class="rc-from-brand">From <b>Amogenz</b></div>
+                        <div class="rc-web-url">https://nahwu.amogenz.my.id</div>
+                    </div>
+                </div>
+
+                <!-- TOMBOL AKSI RAPOR -->
+                <div class="result-actions-row">
+                    <button id="btn-share-png" class="ios-btn-share">
+                        <i class="ph-bold ph-share-network"></i> Unduh PNG (Bagikan)
+                    </button>
+                    <button id="btn-continue-quiz" class="ios-btn-continue">
+                        Lanjut Belajar <i class="ph-bold ph-caret-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- IOS LIGHT TAB BAR -->
+        <nav class="ios-tabbar">
+            <button class="tab-button active" data-page="home">
+                <i class="tab-icon ph-fill ph-house"></i>
+                <span>Home</span>
+            </button>
+
+            <button class="tab-button" data-page="kartu">
+                <i class="tab-icon ph ph-cards"></i>
+                <span>Kartu</span>
+            </button>
+
+            <button class="tab-button" data-page="info">
+                <i class="tab-icon ph ph-gear"></i>
+                <span>Info</span>
+            </button>
+        </nav>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
