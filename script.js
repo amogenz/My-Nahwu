@@ -7,7 +7,7 @@ window.addEventListener('load', () => {
 });
 
 // DEFAULT CONSTANTS
-const DEFAULT_AVATAR = 'https://i.ibb.co.com/VYv0QJVK/ammo-ai.webp';
+const DEFAULT_AVATAR = 'https://i.ibb.co.com/G4JH6kXK/My-Nahwu.webp';
 const SECRET_SALT = "AmogenzSecretKey2026_N3hwv_SecureRank";
 
 // SVG ICONS DICTIONARY FOR RANKS
