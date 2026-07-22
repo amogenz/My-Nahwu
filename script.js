@@ -903,19 +903,60 @@ function initApp() {
         });
     });
 
-    // Listener Reset Cache & Reset Data
+    // (Versi Nuklir Total for My Nahwu)
     if (els.btnClearCache) {
-        els.btnClearCache.addEventListener('click', () => {
-            showConfirmModal(
-                'Hapus Cache & Reset?',
-                'Semua foto profil, wallpaper, dan data poin tersimpan akan dihapus bersih.',
-                () => {
+    els.btnClearCache.addEventListener('click', () => {
+        showConfirmModal(
+            '⚠️ Sapu Bersih Nuklir?',
+            'Tindakan ini akan MEMUSNAHKAN SELURUH cache, foto profil, wallpaper, data poin, session, dan cookie sampai 0 KB bersih total tanpa sisa!',
+            async () => {
+                try {
+                    // 1. Musnahkan seluruh Web Cache Storage (Cache API)
+                    if ('caches' in window) {
+                        const cacheKeys = await caches.keys();
+                        await Promise.all(cacheKeys.map(key => caches.delete(key)));
+                    }
+
+                    // 2. Unregister semua Service Worker background
+                    if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        for (let reg of registrations) {
+                            await reg.unregister();
+                        }
+                    }
+
+                    // 3. Hapus Database IndexedDB lokal jika ada
+                    if (window.indexedDB && indexedDB.databases) {
+                        const dbs = await indexedDB.databases();
+                        for (let db of dbs) {
+                            if (db.name) indexedDB.deleteDatabase(db.name);
+                        }
+                    }
+
+                    // 4. Hapus LocalStorage & SessionStorage
                     localStorage.clear();
+                    sessionStorage.clear();
+
+                    // 5. Hapus Cookie Domain
+                    const cookies = document.cookie.split(";");
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i];
+                        const eqPos = cookie.indexOf("=");
+                        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                        document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                    }
+
+                    // 6. Hard Reload paksa ambil aset baru dari server
+                    window.location.href = window.location.origin + window.location.pathname + '?reset=' + Date.now();
+
+                } catch (err) {
+                    console.error("Gagal sapu bersih:", err);
                     location.reload();
                 }
-            );
-        });
-    }
+            }
+        );
+    });
+}
 
     // Listener Unduh PNG Rapor
     if (els.btnSharePng) {
