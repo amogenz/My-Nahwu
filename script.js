@@ -306,15 +306,18 @@ function setRandomMarquee() {
 
 function getDbUrl(dbName) {
     const baseUrl = "https://cdn.jsdelivr.net/gh/amogenz/Amogenz/db";
+    const v = Date.now(); // Otomatis bypass cache jsDelivr tiap kali file dipanggil
+
     switch(dbName) {
-        case 'lv1':          return `${baseUrl}/amogenzdb-lv1.js`;
-        case 'lv2':          return `${baseUrl}/amogenzdb-lv2.js`;
-        case 'alfiyah-fiil': return `${baseUrl}/amogenzdb-alfiyah-fiil.js`;
-        case 'alfiyah-isim': return `${baseUrl}/amogenzdb-alfiyah-isim.js`;
-        case 'shorof':       return `${baseUrl}/amogenzdb-shorof.js`;
-        default:             return `${baseUrl}/amogenzdb-lv1.js`;
+        case 'lv1':          return `${baseUrl}/amogenzdb-lv1.js?v=${v}`;
+        case 'lv2':          return `${baseUrl}/amogenzdb-lv2.js?v=${v}`;
+        case 'alfiyah-fiil': return `${baseUrl}/amogenzdb-alfiyah-fiil.js?v=${v}`;
+        case 'alfiyah-isim': return `${baseUrl}/amogenzdb-alfiyah-isim.js?v=${v}`;
+        case 'shorof':       return `${baseUrl}/amogenzdb-shorof.js?v=${v}`;
+        default:             return `${baseUrl}/amogenzdb-lv1.js?v=${v}`;
     }
 }
+
 
 async function loadDatabaseAsync(dbName) {
     if (dbCache[dbName]) return dbCache[dbName];
