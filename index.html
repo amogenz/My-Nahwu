@@ -272,82 +272,226 @@
 
             </div>
 
-            <!-- PAGE 2: KARTU PRESTASI & BADGE -->
+            <!-- PAGE 2: KARTU PRESTASI & MEDALI -->
             <div id="page-kartu" class="page-content">
                 <div class="ios-view-stack">
-                    <h2 class="ios-page-title">Koleksi Prestasi & Badge</h2>
+                    <h2 class="ios-page-title">Pencapaian & Koleksi</h2>
 
-                    <!-- OVERVIEW PROGRES CARD -->
-                    <div class="rank-progress-card">
-                        <div class="rpc-top">
-                            <div>
-                                <small>PANGKAT SAAT INI</small>
-                                <h3 id="badge-page-rank-title" class="rank-title-svg">PRAJURIT</h3>
-                            </div>
-                            <span id="badge-page-score-pill" class="rpc-score-pill">0 Jawaban Benar</span>
-                        </div>
-                        <div class="rpc-bar-wrapper">
-                            <div id="rpc-bar-fill" class="rpc-bar-fill" style="width: 0%;"></div>
-                        </div>
-                        <p id="rpc-next-text" class="rpc-next-text">Selesaikan 20 soal lagi untuk naik ke JENDRAL</p>
+                    <!-- IOS SEGMENTED CONTROL SWITCH -->
+                    <div class="ios-segmented-control">
+                        <button class="segmented-item active" id="tab-switch-pangkat" data-target="section-pangkat">
+                            <i class="ph-fill ph-shield"></i> Pangkat Utama
+                        </button>
+                        <button class="segmented-item" id="tab-switch-medali" data-target="section-medali">
+                            <i class="ph-fill ph-medal"></i> Medali (<span id="unlocked-count-label">0</span>/17)
+                        </button>
                     </div>
 
-                    <!-- LIST BADGE PANGKAT -->
-                    <div class="ios-inset-group">
-                        <div class="group-header">DAFTAR TINGKATAN PANGKAT</div>
-                        <div class="badges-grid-list">
-                            
-                            <!-- BADGE 1: KAISAR -->
-                            <div id="badge-card-kaisar" class="badge-item-card locked">
-                                <div class="bic-left">
-                                    <div class="bic-icon-box" id="bic-icon-kaisar"></div>
-                                    <div class="bic-text">
-                                        <h4>Kaisar</h4>
-                                        <p>100+ Jawaban Benar</p>
-                                    </div>
+                    <!-- SUB-SECTION 1: PANGKAT UTAMA -->
+                    <div id="section-pangkat" class="segmented-section active">
+                        <!-- OVERVIEW PROGRES CARD -->
+                        <div class="rank-progress-card">
+                            <div class="rpc-top">
+                                <div>
+                                    <small>PANGKAT SAAT INI</small>
+                                    <h3 id="badge-page-rank-title" class="rank-title-svg">PRAJURIT</h3>
                                 </div>
-                                <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
+                                <span id="badge-page-score-pill" class="rpc-score-pill">0 Jawaban Benar</span>
                             </div>
+                            <div class="rpc-bar-wrapper">
+                                <div id="rpc-bar-fill" class="rpc-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <p id="rpc-next-text" class="rpc-next-text">Selesaikan 20 soal lagi untuk naik ke JENDRAL</p>
+                        </div>
 
-                            <!-- BADGE 2: PANGLIMA BESAR -->
-                            <div id="badge-card-panglima" class="badge-item-card locked">
-                                <div class="bic-left">
-                                    <div class="bic-icon-box" id="bic-icon-panglima"></div>
-                                    <div class="bic-text">
-                                        <h4>Panglima Besar</h4>
-                                        <p>50 - 99 Jawaban Benar</p>
+                        <!-- LIST BADGE PANGKAT -->
+                        <div class="ios-inset-group">
+                            <div class="group-header">DAFTAR TINGKATAN PANGKAT</div>
+                            <div class="badges-grid-list">
+                                
+                                <!-- BADGE 1: KAISAR -->
+                                <div id="badge-card-kaisar" class="badge-item-card locked">
+                                    <div class="bic-left">
+                                        <div class="bic-icon-box" id="bic-icon-kaisar"></div>
+                                        <div class="bic-text">
+                                            <h4>Kaisar</h4>
+                                            <p>100+ Jawaban Benar</p>
+                                        </div>
                                     </div>
+                                    <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
                                 </div>
-                                <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
-                            </div>
 
-                            <!-- BADGE 3: JENDRAL -->
-                            <div id="badge-card-jendral" class="badge-item-card locked">
-                                <div class="bic-left">
-                                    <div class="bic-icon-box" id="bic-icon-jendral"></div>
-                                    <div class="bic-text">
-                                        <h4>Jendral</h4>
-                                        <p>20 - 49 Jawaban Benar</p>
+                                <!-- BADGE 2: PANGLIMA BESAR -->
+                                <div id="badge-card-panglima" class="badge-item-card locked">
+                                    <div class="bic-left">
+                                        <div class="bic-icon-box" id="bic-icon-panglima"></div>
+                                        <div class="bic-text">
+                                            <h4>Panglima Besar</h4>
+                                            <p>50 - 99 Jawaban Benar</p>
+                                        </div>
                                     </div>
+                                    <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
                                 </div>
-                                <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
-                            </div>
 
-                            <!-- BADGE 4: PRAJURIT -->
-                            <div id="badge-card-prajurit" class="badge-item-card unlocked">
-                                <div class="bic-left">
-                                    <div class="bic-icon-box" id="bic-icon-prajurit"></div>
-                                    <div class="bic-text">
-                                        <h4>Prajurit</h4>
-                                        <p>0 - 19 Jawaban Benar</p>
+                                <!-- BADGE 3: JENDRAL -->
+                                <div id="badge-card-jendral" class="badge-item-card locked">
+                                    <div class="bic-left">
+                                        <div class="bic-icon-box" id="bic-icon-jendral"></div>
+                                        <div class="bic-text">
+                                            <h4>Jendral</h4>
+                                            <p>20 - 49 Jawaban Benar</p>
+                                        </div>
                                     </div>
+                                    <span class="bic-status locked"><i class="ph-bold ph-lock"></i> Terkunci</span>
                                 </div>
-                                <span class="bic-status unlocked"><i class="ph-bold ph-check"></i> Terbuka</span>
-                            </div>
 
+                                <!-- BADGE 4: PRAJURIT -->
+                                <div id="badge-card-prajurit" class="badge-item-card unlocked">
+                                    <div class="bic-left">
+                                        <div class="bic-icon-box" id="bic-icon-prajurit"></div>
+                                        <div class="bic-text">
+                                            <h4>Prajurit</h4>
+                                            <p>0 - 19 Jawaban Benar</p>
+                                        </div>
+                                    </div>
+                                    <span class="bic-status unlocked"><i class="ph-bold ph-check"></i> Terbuka</span>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
 
+                    <!-- SUB-SECTION 2: KOLEKSI 17 MEDALI NUSANTARA -->
+                    <div id="section-medali" class="segmented-section" style="display: none;">
+                        <div class="ios-inset-group">
+                            <div class="group-header">KOLEKSI MEDALI NUSANTARA</div>
+                            <p class="section-sub-desc">Ketuk medali untuk melihat detail filosofi dan syarat pembukaannya.</p>
+
+                            <!-- COMPACT GRID TILES (3 KOLOM) -->
+                            <div class="medals-compact-grid">
+                                
+                                <!-- 1. Prasasti Yupa -->
+                                <div class="medal-tile locked" data-medal-id="prasasti_yupa">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-scroll"></i></div>
+                                    <span class="mt-title">Prasasti Yupa</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 2. Sumpah Palapa -->
+                                <div class="medal-tile locked" data-medal-id="sumpah_palapa">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-hand-fist"></i></div>
+                                    <span class="mt-title">Sumpah Palapa</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 3. Benteng Somba Opu -->
+                                <div class="medal-tile locked" data-medal-id="benteng_somba_opu">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-castle-turret"></i></div>
+                                    <span class="mt-title">Somba Opu</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 4. Laskar Diponegoro -->
+                                <div class="medal-tile locked" data-medal-id="laskar_diponegoro">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-horse"></i></div>
+                                    <span class="mt-title">Diponegoro</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 5. Candi Borobudur -->
+                                <div class="medal-tile locked" data-medal-id="candi_borobudur">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-stack"></i></div>
+                                    <span class="mt-title">Borobudur</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 6. Jembatan Ampera -->
+                                <div class="medal-tile locked" data-medal-id="jembatan_ampera">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-bridge"></i></div>
+                                    <span class="mt-title">Ampera</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 7. Puncak Rinjani -->
+                                <div class="medal-tile locked" data-medal-id="puncak_rinjani">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-mountains"></i></div>
+                                    <span class="mt-title">Rinjani</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 8. Laksamana Malahayati -->
+                                <div class="medal-tile locked" data-medal-id="laksamana_malahayati">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-anchor"></i></div>
+                                    <span class="mt-title">Malahayati</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 9. Sultan Hasanuddin -->
+                                <div class="medal-tile locked" data-medal-id="sultan_hasanuddin">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-crown"></i></div>
+                                    <span class="mt-title">Hasanuddin</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 10. Api Nan Tak Kunjung Padam -->
+                                <div class="medal-tile locked" data-medal-id="api_nan_tak_kunjung_padam">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-fire"></i></div>
+                                    <span class="mt-title">Api Abadi</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 11. Ksatria Majapahit -->
+                                <div class="medal-tile locked" data-medal-id="ksatria_majapahit">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-shield-checkered"></i></div>
+                                    <span class="mt-title">Majapahit</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 12. Garda Nusantara -->
+                                <div class="medal-tile locked" data-medal-id="garda_nusantara">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-shield-star"></i></div>
+                                    <span class="mt-title">Garda</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 13. Laskar Sriwijaya -->
+                                <div class="medal-tile locked" data-medal-id="laskar_sriwijaya">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-trophy"></i></div>
+                                    <span class="mt-title">Sriwijaya</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 14. Monumen Nasional -->
+                                <div class="medal-tile locked" data-medal-id="monumen_nasional">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-lighthouse"></i></div>
+                                    <span class="mt-title">Monas</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 15. Pesona Raja Ampat -->
+                                <div class="medal-tile locked" data-medal-id="pesona_raja_ampat">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-waves"></i></div>
+                                    <span class="mt-title">Raja Ampat</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 16. Garuda Pancasila -->
+                                <div class="medal-tile locked" data-medal-id="garuda_pancasila">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-bird"></i></div>
+                                    <span class="mt-title">Garuda</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                                <!-- 17. Wali Sanga -->
+                                <div class="medal-tile locked" data-medal-id="wali_sanga">
+                                    <div class="mt-icon-box"><i class="ph-fill ph-compass"></i></div>
+                                    <span class="mt-title">Wali Sanga</span>
+                                    <i class="ph-bold ph-lock mt-lock"></i>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -559,7 +703,7 @@
                                 <i class="ph-bold ph-caret-right arrow-icon"></i>
                             </a>
 
-                            <a href="https://ig.me/j/Aba3gOVvhUdnW2g1/" target="_blank" class="list-item link">
+                            <a href="https://ig.me/j/Aba3gOVvhUdnW2g1/" id="link-community-group" target="_blank" class="list-item link">
                                 <div class="item-left">
                                     <div class="item-icon-box green">
                                         <i class="ph-fill ph-chats-circle"></i>
@@ -590,12 +734,18 @@
             </div>
         </div>
 
-        <!-- MODAL RAPOR / SERTIFIKAT KARTU HASIL -->
+        <!-- MODAL RAPOR / SERTIFIKAT KARTU HASIL (TELEGRAM COLLECTIBLE GIFT STYLE) -->
         <div id="modal-result" class="ios-modal-overlay">
             <div class="ios-result-modal-container">
                 
                 <!-- CARD YANG AKAN DI-EXPORT JADI PNG -->
                 <div id="result-card-render" class="result-card-marketing">
+                    
+                    <!-- WATERMARK BACKGROUND STAMP -->
+                    <div class="rc-watermark-layer">
+                        <i id="rc-watermark-icon" class="ph-fill ph-seal-check"></i>
+                    </div>
+
                     <div class="rc-header">
                         <div class="rc-brand">
                             <img src="https://i.ibb.co.com/G4JH6kXK/My-Nahwu.webp" alt="My Nahwu Logo" class="rc-logo">
@@ -608,15 +758,32 @@
                     </div>
 
                     <div class="rc-user-info">
-                        <img id="rc-user-pp" src="https://i.ibb.co.com/G4JH6kXK/My-Nahwu.webp" alt="User Avatar" class="rc-avatar">
-                        <div class="rc-user-details">
-                            <div class="rc-name-rank-row">
-                                <h4 id="rc-user-name">Pengguna My Nahwu</h4>
-                                <span id="rc-user-rank-badge" class="rc-rank-pill">PRAJURIT</span>
-                            </div>
-                            <span id="rc-date">21 Juli 2026</span>
-                        </div>
-                    </div>
+    <!-- AVATAR WRAPPER -->
+    <div class="rc-avatar-box">
+        <img id="rc-user-pp" src="https://i.ibb.co.com/G4JH6kXK/My-Nahwu.webp" alt="User Avatar" class="rc-avatar">
+        <div id="rc-avatar-pin" class="rc-avatar-pin" title="Medali Terbaik">
+            <i id="rc-pin-icon" class="ph-fill ph-medal"></i>
+        </div>
+    </div>
+    
+    <div class="rc-user-details">
+        <!-- BARIS UTAMA: NAMA DI KIRI, GROUP PANGKAT & MEDALI DI KANAN -->
+        <div class="rc-main-profile-row">
+            <div class="rc-name-box">
+                <h4 id="rc-user-name">Pengguna My Nahwu</h4>
+                <span id="rc-date">25 Juli 2026</span>
+            </div>
+
+            <!-- CONTAINER KHUSUS PANGKAT + MEDALI (VERTIKAL) -->
+            <div class="rc-rank-col">
+                <span id="rc-user-rank-badge" class="rc-rank-pill">PRAJURIT</span>
+                <span id="rc-medals-pill" class="rc-medals-pill">
+                    <i class="ph-fill ph-medal"></i> <span id="rc-medals-val">0/17 Medali</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
 
                     <div class="rc-stats-grid">
                         <div class="rc-stat-box">
@@ -644,7 +811,9 @@
 
                     <div class="rc-footer-marketing">
     <div class="rc-web-url">https://nahwu.amogenz.my.id</div>
-    <div class="rc-from-brand">From <b>Amogenz</b></div>
+    <div class="rc-footer-right">
+        <div class="rc-from-brand">From <b>Amogenz</b></div>
+    </div>
 </div>
 
                 </div>
@@ -657,6 +826,34 @@
                     <button id="btn-continue-quiz" class="ios-btn-continue">
                         Lanjut Belajar <i class="ph-bold ph-caret-right"></i>
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- IOS BOTTOM SHEET MODAL (DETAIL MEDALI) -->
+        <div id="modal-medal-detail" class="ios-modal-overlay">
+            <div class="ios-bottom-sheet" id="medal-sheet-card">
+                <div class="sheet-handle"></div>
+                <div class="sheet-content">
+                    <div id="sheet-medal-icon-box" class="sheet-medal-icon-box">
+                        <i id="sheet-medal-icon" class="ph-fill ph-medal"></i>
+                    </div>
+                    <h3 id="sheet-medal-title">Nama Medali</h3>
+                    <span id="sheet-medal-status" class="sheet-status-pill locked">
+                        <i class="ph-bold ph-lock"></i> Terkunci
+                    </span>
+                    
+                    <div class="sheet-info-group">
+                        <small>CARA MEMBUKA</small>
+                        <p id="sheet-medal-requirement">Syarat membuka medali...</p>
+                    </div>
+
+                    <div class="sheet-info-group">
+                        <small>FILOSOFI NUSANTARA</small>
+                        <p id="sheet-medal-philosophy">Filosofi kebudayaan...</p>
+                    </div>
+
+                    <button id="sheet-btn-close" class="ios-btn-blue margin-top-sm">Tutup</button>
                 </div>
             </div>
         </div>

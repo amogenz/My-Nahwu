@@ -9,6 +9,7 @@ window.addEventListener('load', () => {
 // DEFAULT CONSTANTS
 const DEFAULT_AVATAR = 'https://i.ibb.co.com/G4JH6kXK/My-Nahwu.webp';
 const SECRET_SALT = "AmogenzSecretKey2026_N3hwv_SecureRank";
+const MEDAL_SECRET_SALT = "AmogenzNusantaraMedals2026_SecureHash";
 
 // SVG ICONS DICTIONARY FOR RANKS
 const SVG_ICONS = {
@@ -21,7 +22,130 @@ const SVG_ICONS = {
     prajurit: `<svg height="17px" width="17px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" fill="#8E8E93" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
 };
 
-// --- 1. ENKRIPSI & ANTI-TAMPER SCORE SECURITY SYSTEM ---
+// --- DATABASE 17 MEDALI NUSANTARA & FILOSOFI ---
+const MEDALS_DB = {
+    prasasti_yupa: {
+        id: 'prasasti_yupa',
+        title: 'Prasasti Yupa',
+        icon: 'ph-fill ph-scroll',
+        req: 'Menjawab 1 soal pertama di aplikasi.',
+        philosophy: 'Yupa di Kutai adalah bukti tertulis tertua di Nusantara. Langkah pertamamu mencatat sejarah awal perjalanan menuntut ilmu Nahwu.'
+    },
+    sumpah_palapa: {
+        id: 'sumpah_palapa',
+        title: 'Sumpah Palapa',
+        icon: 'ph-fill ph-hand-fist',
+        req: 'Menjawab 10 langkah/soal berturut-turut tanpa salah (Combo Streak).',
+        philosophy: 'Membuat ikrar teguh sebagaimana Mahapatih Gajah Mada menembus rintangan demi menyatukan pemahaman kaidah tanpa goyah.'
+    },
+    benteng_somba_opu: {
+        id: 'benteng_somba_opu',
+        title: 'Benteng Somba Opu',
+        icon: 'ph-fill ph-castle-turret',
+        req: 'Menyelesaikan 1 sesi analisis kalimat dengan Akurasi 100% (Perfect Run).',
+        philosophy: 'Pertahanan Somba Opu di Gowa yang tangguh dan tak tertembus, merajai ketelitian tanpa celah dalam analisis I\'rob.'
+    },
+    laskar_diponegoro: {
+        id: 'laskar_diponegoro',
+        title: 'Laskar Diponegoro',
+        icon: 'ph-fill ph-horse',
+        req: 'Berhasil menjawab benar pada soal yang sebelumnya pernah salah (Recovery).',
+        philosophy: 'Semangat perang gerilya Pangeran Diponegoro yang selalu bangkit merancang strategi baru dari kekeliruan masa lalu.'
+    },
+    candi_borobudur: {
+        id: 'candi_borobudur',
+        title: 'Candi Borobudur',
+        icon: 'ph-fill ph-stack',
+        req: 'Menyelesaikan analisis kalimat di Level Jurumiyah (Level 1).',
+        philosophy: 'Pondasi megah Candi Borobudur mencerminkan penguasaan bab-bab awal Matan Al-Jurumiyah sebagai landasan kokoh.'
+    },
+    jembatan_ampera: {
+        id: 'jembatan_ampera',
+        title: 'Jembatan Ampera',
+        icon: 'ph-fill ph-bridge',
+        req: 'Menyelesaikan analisis kalimat di Level Imrithi (Level 2).',
+        philosophy: 'Penghubung megah di Sungai Musi, menyambungkan pemahaman pemula menuju kedalaman bait-bait nadham Imrithi.'
+    },
+    puncak_rinjani: {
+        id: 'puncak_rinjani',
+        title: 'Puncak Rinjani',
+        icon: 'ph-fill ph-mountains',
+        req: 'Menyelesaikan analisis kalimat di Level Alfiyah Isim.',
+        philosophy: 'Mencapai ketinggian Puncak Rinjani mewakili ketangguhan menaklukkan kerumitan hukum-hukum Isim dalam Alfiyah Ibnu Malik.'
+    },
+    laksamana_malahayati: {
+        id: 'laksamana_malahayati',
+        title: 'Laksamana Malahayati',
+        icon: 'ph-fill ph-anchor',
+        req: 'Menyelesaikan analisis kalimat di Level Alfiyah Fi\'il.',
+        philosophy: 'Ketangkasan sang panglima laut perempuan pertama di dunia dalam mengarungi Samudra Fi\'il dan perubahannya.'
+    },
+    sultan_hasanuddin: {
+        id: 'sultan_hasanuddin',
+        title: 'Sultan Hasanuddin',
+        icon: 'ph-fill ph-crown',
+        req: 'Menyelesaikan latihan pada Modul Shorof (Tashrif & I\'lal).',
+        philosophy: 'Keberanian Ayam Jantan dari Timur menembus kerumitan perubahan bentuk kata (Shorof) dan kaidah I\'lal.'
+    },
+    api_nan_tak_kunjung_padam: {
+        id: 'api_nan_tak_kunjung_padam',
+        title: 'Api Nan Tak Kunjung Padam',
+        icon: 'ph-fill ph-fire',
+        req: 'Mencapai akumulasi total 25 Jawaban Benar.',
+        philosophy: 'Semangat abadi bagaikan api alami Madura yang tak pernah padam menerangi konsistensi belajar.'
+    },
+    ksatria_majapahit: {
+        id: 'ksatria_majapahit',
+        title: 'Ksatria Majapahit',
+        icon: 'ph-fill ph-shield-checkered',
+        req: 'Mencapai akumulasi total 50 Jawaban Benar.',
+        philosophy: 'Ketangguhan benteng pertahanan prajurit Wilwatikta dalam menguasai ragam soal dan syawahid.'
+    },
+    garda_nusantara: {
+        id: 'garda_nusantara',
+        title: 'Garda Nusantara',
+        icon: 'ph-fill ph-shield-star',
+        req: 'Mencapai akumulasi total 100 Jawaban Benar.',
+        philosophy: 'Menjadi pelindung ilmu dan penjaga tradisi keilmuan pesantren yang berintegritas tinggi.'
+    },
+    laskar_sriwijaya: {
+        id: 'laskar_sriwijaya',
+        title: 'Laskar Sriwijaya',
+        icon: 'ph-fill ph-trophy',
+        req: 'Mencapai akumulasi total 200 Jawaban Benar.',
+        philosophy: 'Kejayaan pusat keilmuan dan maritim Sriwijaya yang tersohor hingga manca negara.'
+    },
+    monumen_nasional: {
+        id: 'monumen_nasional',
+        title: 'Monumen Nasional',
+        icon: 'ph-fill ph-lighthouse',
+        req: 'Pertama kali mengganti Foto Profil (PP) di halaman Pengaturan.',
+        philosophy: 'Tugu kebanggaan nasional sebagai simbol identitas diri dan semangat juang yang menjulang tinggi.'
+    },
+    pesona_raja_ampat: {
+        id: 'pesona_raja_ampat',
+        title: 'Pesona Raja Ampat',
+        icon: 'ph-fill ph-waves',
+        req: 'Pertama kali mengubah Wallpaper Latar atau Warna Aksen aplikasi.',
+        philosophy: 'Keindahan visual kepulauan Raja Ampat yang memperelok tampilan antarmuka tempat menuntut ilmu.'
+    },
+    garuda_pancasila: {
+        id: 'garuda_pancasila',
+        title: 'Garuda Pancasila',
+        icon: 'ph-fill ph-bird',
+        req: 'Pertama kali mengunduh atau membagikan Rapor Hasil (PNG).',
+        philosophy: 'Mengepakkan sayap lambang negara untuk mensyiarkan prestasi dan dorongan motivasi belajar.'
+    },
+    wali_sanga: {
+        id: 'wali_sanga',
+        title: 'Wali Sanga',
+        icon: 'ph-fill ph-compass',
+        req: 'Membuka link Komunitas / Grup Diskusi di tab Info.',
+        philosophy: 'Meneladani kearifan sembilan wali dalam merangkul masyarakat dan memperluas majelis ilmu.'
+    }
+};
+
+// --- 1. ENKRIPSI & ANTI-TAMPER SECURITY SYSTEM ---
 function simpleHash(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -32,6 +156,7 @@ function simpleHash(str) {
     return Math.abs(hash).toString(36);
 }
 
+// SCORE SECURITY
 function getSecureScore() {
     const rawScore = localStorage.getItem('mynahwu_sec_sc');
     const rawSig = localStorage.getItem('mynahwu_sec_sig');
@@ -67,7 +192,64 @@ function addAccumulatedCorrect(scoreToAdd) {
     const current = getSecureScore();
     const updated = current + scoreToAdd;
     saveSecureScore(updated);
+    
+    // Check Cumulative Score Medals
+    checkCumulativeScoreMedals(updated);
     updateRankUI();
+}
+
+// MEDALS SECURITY (BASE64 + HASH SIGNATURE)
+function getUnlockedMedals() {
+    const rawData = localStorage.getItem('mynahwu_medals_data');
+    const rawSig = localStorage.getItem('mynahwu_medals_sig');
+
+    if (!rawData || !rawSig) return [];
+
+    try {
+        const expectedSig = simpleHash(rawData + MEDAL_SECRET_SALT);
+        if (rawSig !== expectedSig) {
+            console.warn("⚠️ Anti-Cheat Warning: Injeksi Console Dideteksi pada Data Medali! Medali di-reset.");
+            saveUnlockedMedals([]);
+            return [];
+        }
+
+        const decodedJson = atob(rawData);
+        const medalsArr = JSON.parse(decodedJson);
+        return Array.isArray(medalsArr) ? medalsArr : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveUnlockedMedals(medalsArr) {
+    const validArr = Array.isArray(medalsArr) ? medalsArr : [];
+    const jsonStr = JSON.stringify(validArr);
+    const encodedData = btoa(jsonStr);
+    const sig = simpleHash(encodedData + MEDAL_SECRET_SALT);
+
+    localStorage.setItem('mynahwu_medals_data', encodedData);
+    localStorage.setItem('mynahwu_medals_sig', sig);
+}
+
+function unlockMedal(medalId) {
+    if (!MEDALS_DB[medalId]) return;
+
+    const unlocked = getUnlockedMedals();
+    if (!unlocked.includes(medalId)) {
+        unlocked.push(medalId);
+        saveUnlockedMedals(unlocked);
+        
+        const medal = MEDALS_DB[medalId];
+        showToast(`Medali Terbuka: ${medal.title}!`);
+        updateMedalsUI();
+    }
+}
+
+function checkCumulativeScoreMedals(totalScore) {
+    if (totalScore >= 25) unlockMedal('api_nan_tak_kunjung_padam');
+    if (totalScore >= 50) unlockMedal('ksatria_majapahit');
+    if (totalScore >= 100) unlockMedal('garda_nusantara');
+    if (totalScore >= 200) unlockMedal('laskar_sriwijaya');
 }
 
 // --- 2. AUDIO SFX ---
@@ -120,6 +302,10 @@ let els = {};
 let currentDatabase = 'lv1';
 let toastTimer = null;
 
+// QUIZ REALTIME STREAK & SESSION STATS FOR MEDALS
+let comboStreak = 0;
+let sessionHasError = false;
+
 // --- 5. TOAST NOTIFICATION ---
 function showToast(message) {
     const toast = document.getElementById('ios-toast');
@@ -153,7 +339,7 @@ function updateStorageSizeUI() {
     }
 }
 
-// --- 7. LOGIKA CALCULATE PANGKAT & UNLOCK BADGES (SVG REPLACED) ---
+// --- 7. LOGIKA CALCULATE PANGKAT & UNLOCK BADGES ---
 function calculateUserRank(totalCorrect) {
     let rankPosition = 4;
     if (totalCorrect >= 100) rankPosition = 1;
@@ -278,7 +464,96 @@ function updateBadgeCardVisual(elementId, isUnlocked) {
     }
 }
 
-// --- 8. HELPER FUNGSI ---
+// --- 8. LOGIKA MEDALI NUSANTARA UI & BOTTOM SHEET ---
+function updateMedalsUI() {
+    const unlocked = getUnlockedMedals();
+    
+    // 1. Update Counter Label
+    if (els.unlockedCountLabel) {
+        els.unlockedCountLabel.innerText = unlocked.length;
+    }
+    if (els.rcMedalsVal) {
+        els.rcMedalsVal.innerText = `${unlocked.length}/17 Medali`;
+    }
+
+    // 2. Update Grid Tiles Visual
+    document.querySelectorAll('.medal-tile').forEach(tile => {
+        const medalId = tile.getAttribute('data-medal-id');
+        if (unlocked.includes(medalId)) {
+            tile.classList.remove('locked');
+            tile.classList.add('unlocked');
+        } else {
+            tile.classList.remove('unlocked');
+            tile.classList.add('locked');
+        }
+    });
+
+    // 3. Update Result Card Stamp & Pin Badge (Telegram Style)
+    if (unlocked.length > 0) {
+        const latestMedalId = unlocked[unlocked.length - 1];
+        const medalObj = MEDALS_DB[latestMedalId];
+
+        if (medalObj) {
+            if (els.rcWatermarkIcon) {
+                els.rcWatermarkIcon.className = medalObj.icon;
+            }
+            if (els.rcPinIcon) {
+                els.rcPinIcon.className = medalObj.icon;
+            }
+        }
+    } else {
+        if (els.rcWatermarkIcon) els.rcWatermarkIcon.className = 'ph-fill ph-seal-check';
+        if (els.rcPinIcon) els.rcPinIcon.className = 'ph-fill ph-medal';
+    }
+}
+
+function openMedalSheet(medalId) {
+    const medal = MEDALS_DB[medalId];
+    if (!medal) return;
+
+    const unlocked = getUnlockedMedals().includes(medalId);
+
+    if (els.sheetMedalIconBox) {
+        els.sheetMedalIconBox.className = unlocked ? 'sheet-medal-icon-box unlocked' : 'sheet-medal-icon-box';
+    }
+    if (els.sheetMedalIcon) {
+        els.sheetMedalIcon.className = medal.icon;
+    }
+    if (els.sheetMedalTitle) {
+        els.sheetMedalTitle.innerText = medal.title;
+    }
+    if (els.sheetMedalStatus) {
+        if (unlocked) {
+            els.sheetMedalStatus.className = 'sheet-status-pill unlocked';
+            els.sheetMedalStatus.innerHTML = '<i class="ph-bold ph-check-circle"></i> Terbuka';
+        } else {
+            els.sheetMedalStatus.className = 'sheet-status-pill locked';
+            els.sheetMedalStatus.innerHTML = '<i class="ph-bold ph-lock"></i> Terkunci';
+        }
+    }
+    if (els.sheetMedalRequirement) {
+        els.sheetMedalRequirement.innerText = medal.req;
+    }
+    if (els.sheetMedalPhilosophy) {
+        els.sheetMedalPhilosophy.innerText = medal.philosophy;
+    }
+
+    if (els.modalMedalDetail) {
+        els.modalMedalDetail.style.display = 'flex';
+        setTimeout(() => els.modalMedalDetail.classList.add('show'), 10);
+    }
+}
+
+function closeMedalSheet() {
+    if (els.modalMedalDetail) {
+        els.modalMedalDetail.classList.remove('show');
+        setTimeout(() => {
+            els.modalMedalDetail.style.display = 'none';
+        }, 250);
+    }
+}
+
+// --- 9. HELPER FUNGSI ---
 function getLevelLabel(dbKey) {
     switch(dbKey) {
         case 'lv1':          return 'Jurumiyah · Lv 1';
@@ -306,7 +581,7 @@ function setRandomMarquee() {
 
 function getDbUrl(dbName) {
     const baseUrl = "https://cdn.jsdelivr.net/gh/amogenz/Amogenz/db";
-    const v = Date.now(); // Otomatis bypass cache jsDelivr tiap kali file dipanggil
+    const v = Date.now();
 
     switch(dbName) {
         case 'lv1':          return `${baseUrl}/amogenzdb-lv1.js?v=${v}`;
@@ -317,7 +592,6 @@ function getDbUrl(dbName) {
         default:             return `${baseUrl}/amogenzdb-lv1.js?v=${v}`;
     }
 }
-
 
 async function loadDatabaseAsync(dbName) {
     if (dbCache[dbName]) return dbCache[dbName];
@@ -369,7 +643,7 @@ function updateScoreUI() {
     if (els.scoreWrong) els.scoreWrong.innerText = quizScore.wrong;
 }
 
-// --- 9. PERSONALIZATION HANDLERS ---
+// --- 10. PERSONALIZATION HANDLERS ---
 function loadPersonalization() {
     // 1. Nama Panggilan
     const savedName = localStorage.getItem('mynahwu_user_name') || '';
@@ -402,8 +676,9 @@ function loadPersonalization() {
         applyCardBlur(savedBlur, false);
     }
 
-    // 7. Update Pangkat & Memori UI
+    // 7. Update Pangkat, Medali, & Memori UI
     updateRankUI();
+    updateMedalsUI();
 }
 
 function updateGreetingUI(name) {
@@ -425,7 +700,11 @@ function applyUserPP(ppSrc, triggerToast = true) {
     if (els.rcUserPP) els.rcUserPP.src = ppSrc;
 
     localStorage.setItem('mynahwu_user_pp', ppSrc);
-    if (triggerToast) showToast("Foto profil diperbarui");
+    
+    if (triggerToast) {
+        showToast("Foto profil diperbarui");
+        unlockMedal('monumen_nasional'); // Trigger Medal 14: Monumen Nasional
+    }
 }
 
 function applyAccentColor(hex, triggerToast = true) {
@@ -437,7 +716,10 @@ function applyAccentColor(hex, triggerToast = true) {
         else btn.classList.remove('active');
     });
 
-    if (triggerToast) showToast("Warna aksen diperbarui");
+    if (triggerToast) {
+        showToast("Warna aksen diperbarui");
+        unlockMedal('pesona_raja_ampat'); // Trigger Medal 15: Pesona Raja Ampat
+    }
 }
 
 function applyBackground(bgValue, triggerToast = true) {
@@ -454,13 +736,19 @@ function applyBackground(bgValue, triggerToast = true) {
         bgLayer.style.backgroundImage = 'none';
         bgLayer.style.background = bgValue;
         localStorage.setItem('mynahwu_custom_bg', bgValue);
-        if (triggerToast) showToast("Latar gradasi diperbarui");
+        if (triggerToast) {
+            showToast("Latar gradasi diperbarui");
+            unlockMedal('pesona_raja_ampat'); // Trigger Medal 15
+        }
 
     } else {
         bgLayer.style.background = 'none';
         bgLayer.style.backgroundImage = `url("${bgValue}")`;
         localStorage.setItem('mynahwu_custom_bg', bgValue);
-        if (triggerToast) showToast("Wallpaper HP dipasang!");
+        if (triggerToast) {
+            showToast("Wallpaper HP dipasang!");
+            unlockMedal('pesona_raja_ampat'); // Trigger Medal 15
+        }
     }
 
     document.querySelectorAll('.preset-dot').forEach(btn => {
@@ -484,7 +772,7 @@ function applyCardBlur(val, triggerToast = true) {
     if (triggerToast) showToast(`Blur kartu: ${val}px`);
 }
 
-// --- 10. MODAL MANAGEMENT ---
+// --- 11. MODAL MANAGEMENT ---
 function resetModalState() {
     if (els.fbBtnCancel) els.fbBtnCancel.style.display = 'none';
     if (els.fbBtn) {
@@ -525,7 +813,7 @@ function showConfirmModal(title, msg, onConfirm) {
     els.fbBtn.onclick = () => closeModal(onConfirm);
 }
 
-// --- 11. LOGIKA QUIZ SAFE & ANTI-UNDEFINED ---
+// --- 12. LOGIKA QUIZ SAFE & ANTI-UNDEFINED ---
 async function startLearningCycle() {
     els.viewStart.style.display = 'none';
     els.viewQuiz.style.display = 'none';
@@ -565,6 +853,9 @@ async function startLearningCycle() {
         stepIndex = 1;
         quizScore = { correct: 0, wrong: 0, total: 0 };
         failedStepsHistory.clear();
+        comboStreak = 0;
+        sessionHasError = false;
+
         updateScoreUI();
         
         els.viewLoading.style.display = 'none';
@@ -647,12 +938,31 @@ function handleAnswer(ans, data) {
     playSound(isCorrect);
 
     quizScore.total++;
+    const currentStepSignature = `${wordIndex}_${stepIndex}`;
+
     if (isCorrect) {
         quizScore.correct++;
+        comboStreak++;
+        
+        // Trigger Medal 1: Prasasti Yupa (Jawaban Pertama)
+        unlockMedal('prasasti_yupa');
+
+        // Trigger Medal 2: Sumpah Palapa (Combo Streak 10)
+        if (comboStreak >= 10) {
+            unlockMedal('sumpah_palapa');
+        }
+
+        // Trigger Medal 4: Laskar Diponegoro (Recovery)
+        if (failedStepsHistory.has(currentStepSignature)) {
+            unlockMedal('laskar_diponegoro');
+        }
+
         addAccumulatedCorrect(1);
     } else {
         quizScore.wrong++;
-        failedStepsHistory.add(`${wordIndex}_${stepIndex}`);
+        comboStreak = 0; // Reset Combo
+        sessionHasError = true; // Tandai sesi ada kesalahan
+        failedStepsHistory.add(currentStepSignature);
     }
     updateScoreUI();
 
@@ -691,7 +1001,7 @@ function handleAnswer(ans, data) {
     }
 }
 
-// SHOW RAPOR RESULT CARD
+// SHOW RAPOR RESULT CARD & TRIGGER LEVEL MEDALS
 function showRewardPhase() {
     const userName = localStorage.getItem('mynahwu_user_name') || 'Pengguna My Nahwu';
     const userPP = localStorage.getItem('mynahwu_user_pp') || DEFAULT_AVATAR;
@@ -710,7 +1020,20 @@ function showRewardPhase() {
     const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     if (els.rcDate) els.rcDate.innerText = dateStr;
 
+    // Trigger Medal 3: Benteng Somba Opu (Perfect Run 100% Akurasi)
+    if (!sessionHasError && quizScore.correct > 0) {
+        unlockMedal('benteng_somba_opu');
+    }
+
+    // Trigger Medali Kategori Penguasaan Kitab (Level Progress)
+    if (currentDatabase === 'lv1') unlockMedal('candi_borobudur');
+    else if (currentDatabase === 'lv2') unlockMedal('jembatan_ampera');
+    else if (currentDatabase === 'alfiyah-isim') unlockMedal('puncak_rinjani');
+    else if (currentDatabase === 'alfiyah-fiil') unlockMedal('laksamana_malahayati');
+    else if (currentDatabase === 'shorof') unlockMedal('sultan_hasanuddin');
+
     updateRankUI();
+    updateMedalsUI();
 
     if (els.modalResult) els.modalResult.style.display = 'flex';
 }
@@ -735,13 +1058,16 @@ function exportResultPNG() {
         link.href = canvas.toDataURL('image/png');
         link.click();
         showToast("Gambar Rapor Berhasil Diunduh!");
+        
+        // Trigger Medal 16: Garuda Pancasila (Bagikan/Download PNG)
+        unlockMedal('garuda_pancasila');
     }).catch(err => {
         console.error("Gagal export PNG:", err);
         showToast("Gagal mengunduh gambar");
     });
 }
 
-// --- 12. PAGE NAVIGATION ---
+// --- 13. PAGE NAVIGATION & SWITCHING ---
 function switchPage(pageName) {
     document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
     
@@ -761,11 +1087,14 @@ function switchPage(pageName) {
         }
     });
 
-    if (pageName === 'kartu') updateRankUI();
+    if (pageName === 'kartu') {
+        updateRankUI();
+        updateMedalsUI();
+    }
     if (pageName === 'info') updateStorageSizeUI();
 }
 
-// --- 13. INIT APP ---
+// --- 14. INIT APP ---
 function initApp() {
     els = {
         viewStart: document.getElementById('view-start'), 
@@ -822,11 +1151,74 @@ function initApp() {
         rpcBarFill: document.getElementById('rpc-bar-fill'),
         rpcNextText: document.getElementById('rpc-next-text'),
         storageSizeVal: document.getElementById('storage-size-val'),
-        btnClearCache: document.getElementById('btn-clear-cache')
+        btnClearCache: document.getElementById('btn-clear-cache'),
+
+        // MEDALS UI ELEMENTS
+        unlockedCountLabel: document.getElementById('unlocked-count-label'),
+        modalMedalDetail: document.getElementById('modal-medal-detail'),
+        sheetMedalIconBox: document.getElementById('sheet-medal-icon-box'),
+        sheetMedalIcon: document.getElementById('sheet-medal-icon'),
+        sheetMedalTitle: document.getElementById('sheet-medal-title'),
+        sheetMedalStatus: document.getElementById('sheet-medal-status'),
+        sheetMedalRequirement: document.getElementById('sheet-medal-requirement'),
+        sheetMedalPhilosophy: document.getElementById('sheet-medal-philosophy'),
+        sheetBtnClose: document.getElementById('sheet-btn-close'),
+        rcWatermarkIcon: document.getElementById('rc-watermark-icon'),
+        rcPinIcon: document.getElementById('rc-pin-icon'),
+        rcMedalsVal: document.getElementById('rc-medals-val')
     };
 
-    // Load Personalisasi & Pangkat
+    // Load Personalisasi, Pangkat, & Medali
     loadPersonalization();
+
+    // Segmented Switch Listener (Pangkat Utama vs Medali)
+    const switchPangkat = document.getElementById('tab-switch-pangkat');
+    const switchMedali = document.getElementById('tab-switch-medali');
+    const sectionPangkat = document.getElementById('section-pangkat');
+    const sectionMedali = document.getElementById('section-medali');
+
+    if (switchPangkat && switchMedali && sectionPangkat && sectionMedali) {
+        switchPangkat.addEventListener('click', () => {
+            switchPangkat.classList.add('active');
+            switchMedali.classList.remove('active');
+            sectionPangkat.style.display = 'flex';
+            sectionMedali.style.display = 'none';
+        });
+
+        switchMedali.addEventListener('click', () => {
+            switchMedali.classList.add('active');
+            switchPangkat.classList.remove('active');
+            sectionMedali.style.display = 'flex';
+            sectionPangkat.style.display = 'none';
+            updateMedalsUI();
+        });
+    }
+
+    // Listener Compact Grid Tiles Medali
+    document.querySelectorAll('.medal-tile').forEach(tile => {
+        tile.addEventListener('click', (e) => {
+            const medalId = e.currentTarget.getAttribute('data-medal-id');
+            openMedalSheet(medalId);
+        });
+    });
+
+    // Listener Close Bottom Sheet Medali
+    if (els.sheetBtnClose) {
+        els.sheetBtnClose.addEventListener('click', closeMedalSheet);
+    }
+    if (els.modalMedalDetail) {
+        els.modalMedalDetail.addEventListener('click', (e) => {
+            if (e.target === els.modalMedalDetail) closeMedalSheet();
+        });
+    }
+
+    // Listener Link Komunitas (Medal 17: Wali Sanga)
+    const linkCommunity = document.getElementById('link-community-group');
+    if (linkCommunity) {
+        linkCommunity.addEventListener('click', () => {
+            unlockMedal('wali_sanga');
+        });
+    }
 
     // Listener Simpan Nama
     if (els.btnSaveName && els.userNameInput) {
@@ -903,60 +1295,54 @@ function initApp() {
         });
     });
 
-    // (Versi Nuklir Total for My Nahwu)
+    // Reset Data & Cache Nuklir
     if (els.btnClearCache) {
-    els.btnClearCache.addEventListener('click', () => {
-        showConfirmModal(
-            '⚠️ Sapu Bersih Nuklir?',
-            'Tindakan ini akan MEMUSNAHKAN SELURUH cache, foto profil, wallpaper, data poin, session, dan cookie sampai 0 KB bersih total tanpa sisa!',
-            async () => {
-                try {
-                    // 1. Musnahkan seluruh Web Cache Storage (Cache API)
-                    if ('caches' in window) {
-                        const cacheKeys = await caches.keys();
-                        await Promise.all(cacheKeys.map(key => caches.delete(key)));
-                    }
-
-                    // 2. Unregister semua Service Worker background
-                    if ('serviceWorker' in navigator) {
-                        const registrations = await navigator.serviceWorker.getRegistrations();
-                        for (let reg of registrations) {
-                            await reg.unregister();
+        els.btnClearCache.addEventListener('click', () => {
+            showConfirmModal(
+                '⚠️ Sapu Bersih Nuklir?',
+                'Tindakan ini akan MEMUSNAHKAN SELURUH cache, foto profil, wallpaper, data poin, medali, session, dan cookie sampai 0 KB bersih total tanpa sisa!',
+                async () => {
+                    try {
+                        if ('caches' in window) {
+                            const cacheKeys = await caches.keys();
+                            await Promise.all(cacheKeys.map(key => caches.delete(key)));
                         }
-                    }
 
-                    // 3. Hapus Database IndexedDB lokal jika ada
-                    if (window.indexedDB && indexedDB.databases) {
-                        const dbs = await indexedDB.databases();
-                        for (let db of dbs) {
-                            if (db.name) indexedDB.deleteDatabase(db.name);
+                        if ('serviceWorker' in navigator) {
+                            const registrations = await navigator.serviceWorker.getRegistrations();
+                            for (let reg of registrations) {
+                                await reg.unregister();
+                            }
                         }
+
+                        if (window.indexedDB && indexedDB.databases) {
+                            const dbs = await indexedDB.databases();
+                            for (let db of dbs) {
+                                if (db.name) indexedDB.deleteDatabase(db.name);
+                            }
+                        }
+
+                        localStorage.clear();
+                        sessionStorage.clear();
+
+                        const cookies = document.cookie.split(";");
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i];
+                            const eqPos = cookie.indexOf("=");
+                            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                            document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                        }
+
+                        window.location.href = window.location.origin + window.location.pathname + '?reset=' + Date.now();
+
+                    } catch (err) {
+                        console.error("Gagal sapu bersih:", err);
+                        location.reload();
                     }
-
-                    // 4. Hapus LocalStorage & SessionStorage
-                    localStorage.clear();
-                    sessionStorage.clear();
-
-                    // 5. Hapus Cookie Domain
-                    const cookies = document.cookie.split(";");
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i];
-                        const eqPos = cookie.indexOf("=");
-                        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-                        document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                    }
-
-                    // 6. Hard Reload paksa ambil aset baru dari server
-                    window.location.href = window.location.origin + window.location.pathname + '?reset=' + Date.now();
-
-                } catch (err) {
-                    console.error("Gagal sapu bersih:", err);
-                    location.reload();
                 }
-            }
-        );
-    });
-}
+            );
+        });
+    }
 
     // Listener Unduh PNG Rapor
     if (els.btnSharePng) {
@@ -979,7 +1365,7 @@ function initApp() {
 
     document.getElementById('btn-start').addEventListener('click', startLearningCycle);
     
-    // NATIVE CONFIRMATION ALERT UNTUK TOMBOL KEMBALI
+    // Confirmation Alert untuk Tombol Kembali
     document.getElementById('btn-back-home').addEventListener('click', () => {
         showConfirmModal(
             'Keluar dari Soal?',
@@ -992,6 +1378,8 @@ function initApp() {
                 stepIndex = 1;
                 quizScore = { correct: 0, wrong: 0, total: 0 };
                 failedStepsHistory.clear();
+                comboStreak = 0;
+                sessionHasError = false;
             }
         );
     });
