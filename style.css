@@ -717,6 +717,51 @@ body {
 }
 
 /* ================= PAGE KARTU (PRESTASI & BADGE) ================= */
+.ios-segmented-control {
+    display: flex;
+    background: rgba(120, 120, 128, 0.12);
+    border-radius: 9px;
+    padding: 2px;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.segmented-item {
+    flex: 1;
+    padding: 7px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.segmented-item.active {
+    background: #FFFFFF;
+    color: #000000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.segmented-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-sub-desc {
+    font-size: 0.72rem;
+    color: var(--text-tertiary);
+    padding-left: 8px;
+    margin-bottom: 2px;
+}
+
 .rank-progress-card {
     background: var(--ios-card-bg);
     backdrop-filter: blur(var(--card-blur));
@@ -851,6 +896,90 @@ body {
 .bic-status.locked {
     background: rgba(142, 142, 147, 0.15);
     color: var(--ios-gray);
+}
+
+/* COMPACT GRID TILES (3 KOLOM) MEDALI */
+.medals-compact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.medal-tile {
+    background: var(--ios-card-bg);
+    backdrop-filter: blur(var(--card-blur));
+    -webkit-backdrop-filter: blur(var(--card-blur));
+    border: 0.5px solid var(--ios-border);
+    border-radius: 12px;
+    padding: 12px 6px 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.medal-tile:active {
+    transform: scale(0.95);
+}
+
+.medal-tile.locked {
+    opacity: 0.5;
+    filter: grayscale(0.85);
+}
+
+.medal-tile.unlocked {
+    opacity: 1;
+    filter: none;
+    border-color: rgba(255, 149, 0, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.1);
+}
+
+.mt-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--ios-card-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: var(--ios-blue);
+    border: 0.5px solid var(--ios-border);
+}
+
+.medal-tile.unlocked .mt-icon-box {
+    background: rgba(255, 149, 0, 0.12);
+    color: var(--ios-orange);
+    border-color: rgba(255, 149, 0, 0.25);
+}
+
+.mt-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.mt-lock {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 0.65rem;
+    color: var(--ios-gray);
+}
+
+.medal-tile.unlocked .mt-lock {
+    display: none;
 }
 
 /* SETTINGS INSET LIST */
@@ -1214,6 +1343,30 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
     display: flex;
     flex-direction: column;
     gap: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* WATERMARK BACKGROUND STAMP */
+.rc-watermark-layer {
+    position: absolute;
+    bottom: -25px;
+    right: -25px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+    transform: rotate(-20deg);
+}
+
+.rc-watermark-layer i {
+    font-size: 13rem;
+    color: var(--ios-blue);
+}
+
+/* KONTEN KARTU TETAP DI ATAS WATERMARK */
+.rc-header, .rc-user-info, .rc-stats-grid, .rc-quote-box, .rc-footer-marketing {
+    position: relative;
+    z-index: 1;
 }
 
 .rc-header {
@@ -1267,12 +1420,37 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
     border-radius: 14px;
 }
 
+/* AVATAR WRAPPER WITH TELEGRAM-STYLE PIN BADGE */
+.rc-avatar-box {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
 .rc-avatar {
     width: 44px;
     height: 44px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #FFFFFF;
+    display: block;
+}
+
+.rc-avatar-pin {
+    position: absolute;
+    bottom: -2px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #FF9500 0%, #FFCC00 100%);
+    border-radius: 50%;
+    border: 1.5px solid #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    color: #FFFFFF;
+    font-size: 0.65rem;
 }
 
 .rc-name-rank-row {
@@ -1373,6 +1551,25 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
     border-top: 0.5px solid var(--ios-border);
 }
 
+.rc-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rc-medals-pill {
+    background: rgba(0, 122, 255, 0.08);
+    color: var(--ios-blue);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    border: 0.5px solid rgba(0, 122, 255, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .rc-from-brand {
     font-size: 0.72rem;
     color: var(--ios-gray);
@@ -1426,6 +1623,117 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 
 .ios-btn-share:active, .ios-btn-continue:active { opacity: 0.7; }
 
+/* ================= iOS BOTTOM SHEET MODAL (DETAIL MEDALI) ================= */
+.ios-bottom-sheet {
+    background: #FFFFFF;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    width: 100%;
+    max-width: 480px;
+    padding: 12px 20px 24px 20px;
+    position: absolute;
+    bottom: 0;
+    box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.2);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ios-modal-overlay.show .ios-bottom-sheet {
+    transform: translateY(0);
+}
+
+.sheet-handle {
+    width: 36px;
+    height: 5px;
+    background: #E5E5EA;
+    border-radius: 3px;
+    margin: 0 auto 16px auto;
+}
+
+.sheet-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.sheet-medal-icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--ios-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    border: 0.5px solid rgba(0, 122, 255, 0.2);
+}
+
+.sheet-medal-icon-box.unlocked {
+    background: rgba(255, 149, 0, 0.15);
+    color: var(--ios-orange);
+    border-color: rgba(255, 149, 0, 0.3);
+}
+
+#sheet-medal-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #000000;
+    margin-bottom: 6px;
+}
+
+.sheet-status-pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.sheet-status-pill.unlocked {
+    background: rgba(52, 199, 89, 0.12);
+    color: var(--ios-green);
+}
+
+.sheet-status-pill.locked {
+    background: rgba(142, 142, 147, 0.12);
+    color: var(--ios-gray);
+}
+
+.sheet-info-group {
+    width: 100%;
+    background: var(--ios-card-secondary);
+    border-radius: 12px;
+    padding: 10px 12px;
+    text-align: left;
+    margin-bottom: 8px;
+    border: 0.5px solid var(--ios-border);
+}
+
+.sheet-info-group small {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--ios-gray);
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.sheet-info-group p {
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.margin-top-sm {
+    margin-top: 8px;
+}
+
 /* TABBAR */
 .ios-tabbar {
     position: fixed;
@@ -1463,3 +1771,78 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 .tab-button:active { opacity: 0.6; }
 .tab-button i { font-size: 1.3rem; }
 .tab-button.active { color: var(--ios-blue); }
+.rc-user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.rc-medals-pill {
+    background: rgba(0, 122, 255, 0.08);
+    color: var(--ios-blue);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 0.5px solid rgba(0, 122, 255, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    align-self: flex-start; /* Memastikan pill pas seluas isinya */
+    margin-top: 1px;
+}
+.rc-user-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.rc-main-profile-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+}
+
+.rc-name-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rc-name-box h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1.2;
+}
+
+.rc-name-box #rc-date {
+    font-size: 0.68rem;
+    color: var(--ios-gray);
+}
+
+/* KONTEN PANGKAT & MEDALI MENUMPUK DI KANAN */
+.rc-rank-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Rata kanan sejajar dengan Pangkat */
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.rc-medals-pill {
+    background: rgba(0, 122, 255, 0.08);
+    color: var(--ios-blue);
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    border: 0.5px solid rgba(0, 122, 255, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
