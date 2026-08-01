@@ -1852,3 +1852,107 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
     display: block;
     margin: 0 auto;
 }
+/* =============================
+   FIX DYNAMIC FONT ALIGNMENT (MY NAHWU & AMOGENZ LAB)
+   ================ */
+.pill-title,
+.splash-brand,
+.rc-brand h3 {
+    font-family: var(--event-font-family, -apple-system, BlinkMacSystemFont, "SF Pro Display", 'Plus Jakarta Sans', sans-serif) !important;
+    transition: color 0.3s ease;
+}
+
+body[data-event] .pill-title,
+body[data-event] .splash-brand {
+    color: var(--event-accent-color, inherit);
+}
+
+
+/* =============================
+   2. PENGATURAN PISAH UNTUK SETIAP ELEMEN
+   ============================ */
+
+/* A. KHUSUS LOADING / SPLASH SCREEN */
+.splash-brand {
+    font-size: 2rem !important; /* <--- ATUR UKURAN LOADING DI SINI */
+    font-weight: 800;
+    line-height: 1.2 !important;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* B. KHUSUS HEADER NAVBAR (MY NAHWU DI ATAS) */
+.pill-title {
+    font-size: 0.95rem !important; /* <--- ATUR UKURAN HEADER DI SINI */
+    font-weight: 700;
+    line-height: 1.15 !important;
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* C. KHUSUS KARTU RAPOR RESULT */
+.rc-brand h3 {
+    font-size: 1.1rem !important; /* <--- ATUR UKURAN RAPOR DI SINI */
+    font-weight: 800;
+    line-height: 1.2 !important;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* 3. BARIS BAWAH: "AMOGENZ LAB" & BADGE EVENT */
+.brand-author-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 13px; /* LOCKING: Kunci tinggi baris author */
+    line-height: 13px !important;
+}
+
+.pill-author {
+    font-size: 0.65rem;
+    line-height: 1 !important;
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+}
+
+/* 4. BADGE SUB-KETERANGAN EVENT DI SAMPING AMOGENZ LAB */
+.nav-event-badge {
+    font-size: 0.52rem;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--event-accent-color, var(--ios-blue));
+    color: #FFFFFF !important;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1 !important;
+    height: 13px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Ring Avatar Glowing & Pulse Animation */
+body[data-event] .hero-avatar {
+    border-color: var(--event-accent-color, #007AFF) !important;
+    animation: avatarPulse 2s infinite ease-in-out;
+}
+
+/* Glowing Card & Progress Bar Accent */
+body[data-event] .ios-card-sheet,
+body[data-event] .rank-progress-card {
+    border-color: var(--event-accent-color, var(--ios-border)) !important;
+}
+
+body[data-event] .rpc-bar-fill {
+    background: var(--event-accent-gradient, linear-gradient(90deg, var(--ios-blue), var(--ios-purple))) !important;
+}
