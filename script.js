@@ -1038,7 +1038,7 @@ function showRewardPhase() {
     if (els.modalResult) els.modalResult.style.display = 'flex';
 }
 
-// EXPORT RESULT CARD TO PNG (FHD RESOLUTION)
+// EXPORT RESULT CARD TO PNG (ULTRA HD / WA HD READY)
 function exportResultPNG() {
     const cardElement = document.getElementById('result-card-render');
     if (!cardElement || typeof html2canvas === 'undefined') {
@@ -1046,26 +1046,27 @@ function exportResultPNG() {
         return;
     }
 
-    showToast("Mengolah Gambar FHD...");
+    showToast("Mengolah Gambar HD...");
 
-    // 1. Hitung skala dinamis agar lebar target minimal 1080px (Standar FHD)
-    // Jika elemen di HP selebar 360px, maka scale otomatis menjadi 3x (1080px)
-    const targetWidth = 1080; 
+    // Patok target lebar ke 2500px agar memicu indikator HD di WhatsApp
+    const targetWidth = 2500; 
     const currentWidth = cardElement.offsetWidth || 360;
-    const dynamicScale = Math.max(3, targetWidth / currentWidth);
+    
+    // Minimal skala dipatok ke 4x - 5x dari ukuran elemen di HP
+    const dynamicScale = Math.max(4, targetWidth / currentWidth);
 
     html2canvas(cardElement, {
-        scale: dynamicScale, // Menaikkan ketajaman gambar ke FHD/4K
+        scale: dynamicScale, // Menghasilkan resolusi raksasa (2500px+)
         backgroundColor: "#FFFFFF",
         useCORS: true,
         logging: false,
         imageTimeout: 0
     }).then(canvas => {
         const link = document.createElement('a');
-        link.download = `Rapor-MyNahwu-FHD-${Date.now()}.png`;
+        link.download = `Rapor-MyNahwu-UHD-${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
-        showToast("Gambar Rapor FHD Berhasil Diunduh!");
+        showToast("Gambar Rapor HD Berhasil Diunduh!");
         
         // Trigger Medal 16: Garuda Pancasila (Bagikan/Download PNG)
         unlockMedal('garuda_pancasila');
@@ -1074,7 +1075,6 @@ function exportResultPNG() {
         showToast("Gagal mengunduh gambar");
     });
 }
-
 
 // --- 13. PAGE NAVIGATION & SWITCHING ---
 function switchPage(pageName) {
