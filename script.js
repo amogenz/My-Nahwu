@@ -1038,7 +1038,7 @@ function showRewardPhase() {
     if (els.modalResult) els.modalResult.style.display = 'flex';
 }
 
-// EXPORT RESULT CARD TO PNG
+// EXPORT RESULT CARD TO PNG (FHD RESOLUTION)
 function exportResultPNG() {
     const cardElement = document.getElementById('result-card-render');
     if (!cardElement || typeof html2canvas === 'undefined') {
@@ -1046,18 +1046,26 @@ function exportResultPNG() {
         return;
     }
 
-    showToast("Mengolah Gambar PNG...");
+    showToast("Mengolah Gambar FHD...");
+
+    // 1. Hitung skala dinamis agar lebar target minimal 1080px (Standar FHD)
+    // Jika elemen di HP selebar 360px, maka scale otomatis menjadi 3x (1080px)
+    const targetWidth = 1080; 
+    const currentWidth = cardElement.offsetWidth || 360;
+    const dynamicScale = Math.max(3, targetWidth / currentWidth);
 
     html2canvas(cardElement, {
-        scale: 2,
+        scale: dynamicScale, // Menaikkan ketajaman gambar ke FHD/4K
         backgroundColor: "#FFFFFF",
-        useCORS: true
+        useCORS: true,
+        logging: false,
+        imageTimeout: 0
     }).then(canvas => {
         const link = document.createElement('a');
-        link.download = `Rapor-MyNahwu-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
+        link.download = `Rapor-MyNahwu-FHD-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
-        showToast("Gambar Rapor Berhasil Diunduh!");
+        showToast("Gambar Rapor FHD Berhasil Diunduh!");
         
         // Trigger Medal 16: Garuda Pancasila (Bagikan/Download PNG)
         unlockMedal('garuda_pancasila');
@@ -1066,6 +1074,7 @@ function exportResultPNG() {
         showToast("Gagal mengunduh gambar");
     });
 }
+
 
 // --- 13. PAGE NAVIGATION & SWITCHING ---
 function switchPage(pageName) {
