@@ -663,6 +663,194 @@ function updateScoreUI() {
     if (els.scoreWrong) els.scoreWrong.innerText = quizScore.wrong;
 }
 
+// =====================================
+// SYSTEM DOODLE / EVENT SKIN TEMPLATES
+// ====================================
+
+const FORCE_EVENT = null; 
+
+const EVENT_TEMPLATES = {
+    "17_agustus": {
+        id: "17_agustus",
+        name: "HUT Kemerdekaan RI",
+        // Format Waktu: Bulan-Tanggal Jam:Menit:Detik (MM-DD HH:mm:ss)
+        dateRange: { start: "08-01 11:17:00", end: "08-19 23:59:39" },
+        theme: {
+            accentColor: "#FF3B30",
+            glowColor: "rgba(255, 59, 48, 0.35)",
+            accentGradient: "linear-gradient(90deg, #FF3B30, #FFFFFF, #FF3B30)",
+            bgGradient: "linear-gradient(135deg, #ffffff 0%, #ffe5e5 100%)",
+            badgeText: "17 Agustus 1945",
+            fontFamily: "'Russo One', sans-serif",
+            fontUrl: "https://fonts.googleapis.com/css2?family=Russo+One&display=swap",
+            watermarkIcon: "ph-fill ph-flag-banner"
+        },
+        brandText: "My Nahwu 🇮🇩",
+        heroSubtitle: "<b>Dirgahayu Republik Indonesia!</b> Kobarkan semangat juang belajar Nahwu.",
+        marquee: [
+        "Dirgahayu Republik Indonesia! Sekali Merdeka Tetap Merdeka.",
+        "حُبُّ الْوَطَنِ مِنَ الْإِيمَانِ — Cinta Tanah Air adalah sebagian dari Iman.",
+        "Mari jaga tradisi keilmuan bangsa demi kejayaan Negeri."
+    ],
+        raporBadge: "KEMERDEKAAN"
+    },
+    "maulid_rasul": {
+        id: "maulid_rasul",
+        name: "Maulid Nabi Muhammad SAW",
+        dateRange: { start: "08-24 00:00:00", end: "09-21 23:59:59" },
+        theme: {
+            accentColor: "#006B3F", // Hijau Kubah Nabawi
+            glowColor: "rgba(0, 107, 63, 0.45)",
+            accentGradient: "linear-gradient(90deg, #006B3F, #111111, #D4AF37, #006B3F)",
+            bgGradient: "linear-gradient(135deg, #e6f4ea 0%, #fef3c7 50%, #e5e7eb 100%)",
+            badgeText: "Maulid Nabi",
+            
+            // FONT BARU: EL MESSIRI (Lekukan Kaligrafi Modern & Sangat Rapi)
+            fontFamily: "'Montserrat', sans-serif",
+            fontUrl: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Noto+Kufi+Arabic:wght@100..900&display=swap",
+            
+            watermarkIcon: "ph-fill ph-moon-stars"
+        },
+        brandText: 'My Nahwu <svg class="brand-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:inline-block; vertical-align:-2px; margin-left:4px; color:#006B3F;"><path d="M12 2C11.5 3 10 4.5 10 7C7 8.5 5 11.5 5 15V21H19V15C19 11.5 17 8.5 14 7C14 4.5 12.5 3 12 2ZM12 4.2C12.3 4.8 12.8 5.6 13.2 6.2C12.8 6.1 12.4 6 10.8 6.2C11.2 5.6 11.7 4.8 12 4.2ZM7 16C7 13.2 9.2 11 12 11C14.8 11 17 13.2 17 16V19H7V16Z"/></svg>',
+        heroSubtitle: "<b>Selamat Memperingati Maulid Nabi Muhammad SAW!</b> Teladani akhlak Rasulullah melalui keindahan bahasa Al-Qur'an dan Hadis.",
+        marquee: [
+            "اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّدِنَا مُحَمَّدٍ — Selamat Memperingati Maulid Nabi Muhammad SAW.",
+            "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ — Barangsiapa menuntut ilmu, Allah mudahkan jalannya menuju Surga.",
+            "Mari agungkan sholawat dan perdalam pemahaman Nahwu untuk memahami dawuh dan sunnah Rasulullah SAW."
+        ],
+        raporBadge: "MAULID RASUL"
+    },
+
+};
+
+function getActiveEvent() {
+    if (FORCE_EVENT && EVENT_TEMPLATES[FORCE_EVENT]) {
+        return EVENT_TEMPLATES[FORCE_EVENT];
+    }
+
+    const now = new Date();
+    // Padding otomatis agar selalu 2 digit
+    const MM = String(now.getMonth() + 1).padStart(2, '0');
+    const DD = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+
+    // Format waktu user saat ini: "MM-DD HH:mm:ss"
+    const currentTimeStr = `${MM}-${DD} ${hh}:${mm}:${ss}`;
+
+    for (const key in EVENT_TEMPLATES) {
+        const ev = EVENT_TEMPLATES[key];
+        const { start, end } = ev.dateRange;
+
+        // Cek jika event melewati pergantian tahun (contoh: 31 Des sampai 2 Jan)
+        if (start > end) {
+            if (currentTimeStr >= start || currentTimeStr <= end) return ev;
+        } else {
+            // Cek di rentang normal
+            if (currentTimeStr >= start && currentTimeStr <= end) return ev;
+        }
+    }
+    return null;
+}
+
+function applyEventSkin() {
+    const activeEvent = getActiveEvent();
+    
+    if (!activeEvent) {
+        document.body.removeAttribute('data-event');
+        document.documentElement.style.removeProperty('--event-font-family');
+        
+        // Hapus elemen yang diinjeksi jika event berakhir
+        const navBadge = document.getElementById('nav-event-badge');
+        if(navBadge) navBadge.style.display = 'none';
+        
+        return;
+    }
+
+    // 1. Load Google Font Khusus Event secara Dinamis (Anti Lag)
+    if (activeEvent.theme.fontUrl && !document.getElementById(`font-event-${activeEvent.id}`)) {
+        const link = document.createElement('link');
+        link.id = `font-event-${activeEvent.id}`;
+        link.rel = 'stylesheet';
+        link.href = activeEvent.theme.fontUrl;
+        document.head.appendChild(link);
+    }
+
+    // 2. Set Atribut Body & Variabel CSS Utama
+    document.body.setAttribute('data-event', activeEvent.id);
+    document.documentElement.style.setProperty('--event-accent-color', activeEvent.theme.accentColor);
+    document.documentElement.style.setProperty('--event-glow-color', activeEvent.theme.glowColor);
+    document.documentElement.style.setProperty('--event-accent-gradient', activeEvent.theme.accentGradient);
+    
+    if (activeEvent.theme.fontFamily) {
+        document.documentElement.style.setProperty('--event-font-family', activeEvent.theme.fontFamily);
+    }
+
+    // Paksa Ubah Aksen Utama Aplikasi saat Event
+    document.documentElement.style.setProperty('--ios-blue', activeEvent.theme.accentColor);
+
+    // 3. Ubah Teks Judul Branding "My Nahwu"
+    const titleElements = document.querySelectorAll('.pill-title, .splash-brand, .rc-brand h3');
+    if (activeEvent.brandText) {
+        titleElements.forEach(el => el.innerHTML = activeEvent.brandText);
+    }
+
+    // 4. Ubah Latar Belakang jika masih default
+    const savedBg = localStorage.getItem('mynahwu_custom_bg') || 'default';
+    if (savedBg === 'default' || !savedBg) {
+        const bgLayer = document.getElementById('app-bg-layer');
+        if (bgLayer && activeEvent.theme.bgGradient) {
+            bgLayer.style.backgroundImage = 'none';
+            bgLayer.style.background = activeEvent.theme.bgGradient;
+        }
+    }
+
+    // 5. Tampilkan Badge Event di Navbar
+    const navBadge = document.getElementById('nav-event-badge');
+    if (navBadge && activeEvent.theme.badgeText) {
+        navBadge.innerText = activeEvent.theme.badgeText;
+        navBadge.style.backgroundColor = activeEvent.theme.accentColor;
+        navBadge.style.display = 'inline-flex';
+    }
+
+    // 6. Update Subtitle Sapaan di Home Header
+    const heroSubtitleEl = document.querySelector('.ios-hero-header p');
+    if (heroSubtitleEl && activeEvent.heroSubtitle) {
+        heroSubtitleEl.innerHTML = activeEvent.heroSubtitle;
+    }
+
+    // 7. Masukkan Pesan Event ke Running Text Marquee
+    if (activeEvent.marquee) {
+    // Ubah ke array jika bentuknya string biasa
+    const marqueeList = Array.isArray(activeEvent.marquee) ? activeEvent.marquee : [activeEvent.marquee];
+    
+    // Masukkan semua lafadz ke paling depan DAWUH_PLAYLIST
+    marqueeList.slice().reverse().forEach(msg => {
+        if (!DAWUH_PLAYLIST.includes(msg)) {
+            DAWUH_PLAYLIST.unshift(msg);
+        }
+    });
+
+    // Jalankan marquee dari lafadz pertama
+    if (typeof updateMarquee === 'function') {
+        updateMarquee(DAWUH_PLAYLIST[0]);
+    }
+}
+
+    // 8. Update Badge & Watermark Rapor PNG
+    const rcBadge = document.querySelector('.rc-badge-pill');
+    if (rcBadge && activeEvent.raporBadge) {
+        rcBadge.innerText = activeEvent.raporBadge;
+        rcBadge.style.backgroundColor = activeEvent.theme.accentColor;
+    }
+
+    const rcWatermark = document.getElementById('rc-watermark-icon');
+    if (rcWatermark && activeEvent.theme.watermarkIcon) {
+        rcWatermark.className = activeEvent.theme.watermarkIcon;
+    }
+}
+
 // --- 10. PERSONALIZATION HANDLERS ---
 function loadPersonalization() {
     // 1. Nama Panggilan
@@ -699,6 +887,8 @@ function loadPersonalization() {
     // 7. Update Pangkat, Medali, & Memori UI
     updateRankUI();
     updateMedalsUI();
+    // INJEKSI SKIN EVENT AUTOMATIC
+    applyEventSkin();
 }
 
 function updateGreetingUI(name) {
