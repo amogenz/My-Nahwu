@@ -581,6 +581,8 @@ function getLevelLabel(dbKey) {
         case 'alfiyah-isim': return 'Alfiyah Isim';
         case 'alfiyah-fiil': return 'Alfiyah Fi\'il';
         case 'shorof':       return 'Shorof';
+        case 'bina':       return 'Bina';
+        case 'tasrif':       return 'Tasrif';
         default:             return 'Jurumiyah';
     }
 }
@@ -609,6 +611,8 @@ function getDbUrl(dbName) {
         case 'alfiyah-fiil': return `${baseUrl}/amogenzdb-alfiyah-fiil.js?v=${v}`;
         case 'alfiyah-isim': return `${baseUrl}/amogenzdb-alfiyah-isim.js?v=${v}`;
         case 'shorof':       return `${baseUrl}/amogenzdb-shorof.js?v=${v}`;
+        case 'bina':       return `${baseUrl}/amogenzdb-bina.js?v=${v}`;
+        case 'tasrif':       return `${baseUrl}/amogenzdb-tasrif.js?v=${v}`;
         default:             return `${baseUrl}/amogenzdb-lv1.js?v=${v}`;
     }
 }
