@@ -236,17 +236,27 @@
 
                 <!-- VIEW QUIZ -->
                 <div id="view-quiz" class="ios-quiz-wrapper" style="display: none;">
-                    <!-- IOS TOP NAV BACK & SCORE BAR -->
+                                        <!-- IOS TOP NAV BACK & SCORE BAR -->
                     <div class="ios-top-nav-bar">
                         <button class="ios-nav-back" id="btn-back-home">
                             <i class="ph-bold ph-caret-left"></i>
                             <span>Home</span>
                         </button>
-                        <div class="quiz-score-tracker">
-                            <span class="score-correct"><i class="ph-bold ph-check"></i> <span id="score-correct-val">0</span></span>
-                            <span class="score-wrong"><i class="ph-bold ph-x"></i> <span id="score-wrong-val">0</span></span>
+
+                        <!-- GRUP KANAN: SCORE TRACKER + TOMBOL LAPOR -->
+                        <div class="quiz-top-right-group">
+                            <div class="quiz-score-tracker">
+                                <span class="score-correct"><i class="ph-bold ph-check"></i> <span id="score-correct-val">0</span></span>
+                                <span class="score-wrong"><i class="ph-bold ph-x"></i> <span id="score-wrong-val">0</span></span>
+                            </div>
+
+                            <!-- TOMBOL LAPOR TEPT DI BAWAH SCORE TRACKER -->
+                            <button id="btn-report-issue" class="quiz-report-btn">
+                                <i class="ph-bold ph-warning-circle"></i> Laporkan Soal
+                            </button>
                         </div>
                     </div>
+
 
                     <!-- USER PP, NAME, & RANK BADGE -->
                     <div class="quiz-user-badge-bar">
@@ -879,7 +889,41 @@
                 </div>
             </div>
         </div>
+        
+        <!-- MODAL PRATINJAU LAPORAN SOAL -->
+        <div id="modal-report" class="ios-modal-overlay">
+            <div class="ios-report-modal-container">
+                <div class="ios-report-card">
+                    <div class="report-header">
+                        <div class="report-title-box">
+                            <i class="ph-bold ph-warning-circle"></i>
+                            <h3>Pratinjau Laporan</h3>
+                        </div>
+                        <p>Periksa detail soal di bawah ini sebelum dikirim ke Instagram <b>@nahwuos</b>:</p>
+                    </div>
+                    
+                    <!-- BOX PREVIEW TEKS YANG BISA DIBACA USER -->
+                    <div class="report-preview-box">
+                        <pre id="report-preview-text">Memuat pratinjau...</pre>
+                    </div>
 
+                    <!-- CATATAN PETUNJUK -->
+                    <div class="report-tip-box">
+                        <i class="ph-bold ph-lightbulb"></i>
+                        <span><b>Tips:</b> Kamu bisa screenshot (SS) bagian yang kurang tepat jika ingin melampirkan foto soal ke DM.</span>
+                    </div>
+
+                    <!-- TOMBOL AKSI MODAL -->
+                    <div class="report-actions-row">
+                        <button id="btn-cancel-report" class="ios-btn-continue">Batal</button>
+                        <button id="btn-submit-report" class="ios-btn-share danger-bg">
+                            <i class="ph-bold ph-paper-plane-tilt"></i> Kirim Laporan ke IG
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
         <!-- IOS LIGHT TAB BAR -->
         <nav class="ios-tabbar">
             <button class="tab-button active" data-page="home">

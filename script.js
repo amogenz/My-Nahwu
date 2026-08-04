@@ -634,7 +634,84 @@ async function loadDatabaseAsync(dbName) {
     dbCache[dbName] = parsedData;
     return parsedData;
 }
+// Variabel penyimpan teks laporan yang disiapkan
+let generatedReportText = "";
 
+// 1. FUNGSI UNTUK MEMBUKA MODAL PRATINJAU LAPORAN
+function openReportModal() {
+    if (!quizData || !quizData.analysis || !quizData.analysis[wordIndex]) {
+        showToast("⚠️ Belum ada soal yang aktif");
+        return;
+    }
+
+    const curWord = quizData.analysis[wordIndex];
+    const totalWords = quizData.analysis.length;
+    const curStep = curWord.steps ? curWord.steps[stepIndex.toString()] : null;
+    const totalSteps = curWord.steps ? Object.keys(curWord.steps).length : 1;
+
+    // Susun format laporan detail
+    generatedReportText = `[LAPORAN KESALAHAN SOAL - MY NAHWU]
+----------------------------------
+📌 Kitab/Level : ${getLevelLabel(currentDatabase)}
+🆔 ID Kalimat  : ${quizData.id || '-'}
+📖 Kalimat     : ${quizData.sentence || '-'}
+🔤 Lafadz      : ${curWord.word || '-'} (Lafadz ke-${wordIndex + 1} dari ${totalWords})
+🔢 Langkah     : Langkah ${stepIndex} dari ${totalSteps}
+❓ Pertanyaan  : ${curStep ? curStep.question : '-'}
+----------------------------------
+(Tempel teks ini di DM IG @nahwuos, sertakan screenshot jika ada)`;
+
+    // Tampilkan teks ke dalam modal
+    const previewElem = document.getElementById('report-preview-text');
+    if (previewElem) previewElem.innerText = generatedReportText;
+
+    // Tampilkan modal
+    const modalReport = document.getElementById('modal-report');
+    if (modalReport) {
+        modalReport.style.display = 'flex';
+    }
+}
+
+// 2. FUNGSI UNTUK MENUTUP MODAL LAPORAN
+function closeReportModal() {
+    const modalReport = document.getElementById('modal-report');
+    if (modalReport) {
+        modalReport.style.display = 'none';
+    }
+}
+
+// 3. FUNGSI UNTUK MENYALIN TEKS DAN REDIRECT KE IG DM
+function executeSendReport() {
+    if (!generatedReportText) return;
+
+    // Salin otomatis ke Clipboard HP User
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(generatedReportText).then(() => {
+            showToast("📋 Detail disalin! Silakan tempel di DM IG");
+        }).catch(() => fallbackCopyText(generatedReportText));
+    } else {
+        fallbackCopyText(generatedReportText);
+    }
+
+    closeReportModal();
+
+    // Direct ke DM Instagram @nahwuos
+    setTimeout(() => {
+        window.open('https://ig.me/m/nahwuos', '_blank');
+    }, 600);
+}
+
+function fallbackCopyText(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    showToast("📋 Detail disalin! Silakan tempel di DM IG");
+}
+
+// -------------------
 function getSeenSentences() { 
     const key = `mynahwu_seen_indices_${currentDatabase}`;
     const seen = localStorage.getItem(key); 
@@ -1635,8 +1712,28 @@ function initApp() {
             updateMarquee(DAWUH_PLAYLIST[dawuhIndex]);
         });
     }
+        // Listener Tombol Lapor (Buka Pratinjau Modal)
+    const btnReport = document.getElementById('btn-report-issue');
+    if (btnReport) {
+        btnReport.addEventListener('click', openReportModal);
+    }
+
+    // Listener Tombol Batal & Kirim di Modal Laporan
+    const btnCancelReport = document.getElementById('btn-cancel-report');
+    if (btnCancelReport) {
+        btnCancelReport.addEventListener('click', closeReportModal);
+    }
+
+    const btnSubmitReport = document.getElementById('btn-submit-report');
+    if (btnSubmitReport) {
+        btnSubmitReport.addEventListener('click', executeSendReport);
+    }
+
+    
+    //// init akhir
 }
 
+/// --------- ///
 if (document.readyState === 'loading') { 
     document.addEventListener('DOMContentLoaded', initApp); 
 } else { 
