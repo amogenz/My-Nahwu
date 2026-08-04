@@ -1956,3 +1956,129 @@ body[data-event] .rank-progress-card {
 body[data-event] .rpc-bar-fill {
     background: var(--event-accent-gradient, linear-gradient(90deg, var(--ios-blue), var(--ios-purple))) !important;
 }
+/* ==========================================
+   TOMBOL LAPOR DI BAWAH SCORE TRACKER
+   ========================================== */
+.quiz-top-right-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.quiz-report-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 59, 48, 0.12);
+    color: var(--ios-red);
+    border: 0.5px solid rgba(255, 59, 48, 0.35);
+    border-radius: 12px;
+    padding: 3px 9px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    box-shadow: 0 1px 4px rgba(255, 59, 48, 0.1);
+}
+
+.quiz-report-btn i {
+    font-size: 0.85rem;
+}
+
+.quiz-report-btn:active {
+    transform: scale(0.94);
+    background: rgba(255, 59, 48, 0.25);
+}
+/* ==========================================
+   MODAL PRATINJAU LAPORAN (PREVIEW BEFORE DIRECT)
+   ========================================== */
+.ios-report-modal-container {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ios-report-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.report-title-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ios-red);
+}
+
+.report-title-box i {
+    font-size: 1.3rem;
+}
+
+.report-title-box h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #000000;
+}
+
+.report-header p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.35;
+}
+
+.report-preview-box {
+    background: #F2F2F7;
+    border: 0.5px solid var(--ios-border);
+    border-radius: 12px;
+    padding: 12px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.report-preview-box pre {
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.72rem;
+    color: #1c1c1e;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.report-tip-box {
+    background: rgba(255, 149, 0, 0.1);
+    border: 0.5px solid rgba(255, 149, 0, 0.3);
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.72rem;
+    color: #a35d00;
+}
+
+.report-tip-box i {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.report-actions-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.ios-btn-share.danger-bg {
+    background: var(--ios-red);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
