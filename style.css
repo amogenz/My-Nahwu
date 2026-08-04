@@ -2082,3 +2082,93 @@ body[data-event] .rpc-bar-fill {
     background: var(--ios-red);
     box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
 }
+/* ==========================================
+   LOGO BRAND FOOTER (INFO PAGE) - LARGER & COMPACT
+   ========================================== */
+.footer-logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;    /* Jarak dari grup menu atas diperrapat (sebelumnya 24px) */
+    margin-bottom: 1px;  /* Jarak ke teks copyright bawah diperrapat (sebelumnya 6px) */
+}
+
+.footer-logo {
+    height: 57px;        /* Ukuran logo diperbesar (sebelumnya 32px) */
+    width: auto;
+    object-fit: contain;
+    opacity: 0.9;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.footer-logo:hover {
+    opacity: 1;
+    transform: scale(1.03);
+}
+
+/* Merapatkan jarak teks copyright di bawahnya */
+.ios-footer-copyright {
+    margin-top: 1px !important; /* Jarak teks copyright dipaksa makin dekat ke logo */
+}
+.footer-logo-wrapper {
+    display: inline-flex; /* Agar lebar menyesuaikan isi logo */
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+    margin-bottom: 2px;
+    /* Lapisan kaca khas iOS */
+    background: #000000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: 0.5px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.footer-logo {
+    height: 48px; /* Disesuaikan sedikit agar pas di dalam pill */
+    width: auto;
+    object-fit: contain;
+}
+/* ==========================================
+   LOGO BRAND FOOTER (DUAL INSTAGRAM CLICK AREA)
+   ========================================== */
+.footer-logo-wrapper {
+    position: relative; /* Wajib agar area klik menempel pas di atas gambar */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+    margin-bottom: 2px;
+}
+
+
+/* AREA KLIK TERTUTUP TRANSPARAN (50% KIRI & 50% KANAN) */
+.logo-click-area {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 2;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.logo-click-area.left {
+    left: 0;
+}
+
+.logo-click-area.right {
+    right: 0;
+}
+
+/* Efek visual tipis saat logo ditekan di layar HP */
+.logo-click-area:active {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.ios-footer-copyright {
+    margin-top: 4px !important;
+}
