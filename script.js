@@ -751,11 +751,38 @@ function updateScoreUI() {
 const FORCE_EVENT = null; 
 
 const EVENT_TEMPLATES = {
+    "mqsd": {
+        id: "mqsd",
+        name: "Reuni 3 & Anniversary 7 Wahda Maqoshidana",
+        dateRange: { start: "08-01 00:00:00", end: "08-13 23:59:59" },
+        theme: {
+            accentColor: "#00A859", // Hijau Emerald Utama Maqoshidana
+            glowColor: "rgba(0, 168, 89, 0.25)",
+            accentGradient: "linear-gradient(90deg, #111827, #00A859, #059669)", // Gradasi Hitam ke Hijau Emerald
+            bgGradient: "linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 50%, #D1D5DB 100%)", // Latar Light Neutral Bersih
+            badgeText: "Reuni 3 & Anniversary 7",
+            
+            fontFamily: "'Russo One', sans-serif",
+            fontUrl: "https://fonts.googleapis.com/css2?family=Russo+One&display=swap",
+            
+            watermarkIcon: "ph-fill ph-users-three"
+        },
+        brandText: 'My Nahwu <svg class="brand-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:inline-block; vertical-align:-2px; margin-left:4px; color:#00A859;"><path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18C5 19.5 8.13 21 12 21C15.87 21 19 19.5 19 17.18V13.18L12 17L5 13.18Z"/></svg>',
+
+        heroSubtitle: "<b>Selamat dan sukses atas terselenggaranya acara Reuni Ke-3 & Anniversary Ke-7 Wahda Maqoshidana!</b><br><i>'Tujuh tahun merangkai cerita, tiga kali kembali bersua. Mengikat sanad keilmuan, merawat ingatan, dan meneguhkan ukhuwah abadi.'</i>",
+        marquee: [
+            "WAYAHE WAYAHE — Selamat & Sukses atas Terselenggaranya acara Reuni 3 & Anniversary 7 Wahda Maqoshidana!",
+            "Sahabat lama itu seperti buku bagus; meski jarang dibuka, ceritanya tak pernah berubah.",
+            "Pernah bertumbuh di bawah atap dan doa guru yang sama — Menukar rindu menjadi tawa yang nyata.",
+            "اللَّهُمَّ انْفَعْنَا بِمَا عَلَّمْتَنَا وَعَلِّمْنَا مَا يَنْفَعُنَا — Melanggengkan sanad dan kebersamaan santri Maqoshidana."
+        ],
+        raporBadge: "MQSD 20"
+    },
     "17_agustus": {
         id: "17_agustus",
         name: "HUT Kemerdekaan RI",
         // Format Waktu: Bulan-Tanggal Jam:Menit:Detik (MM-DD HH:mm:ss)
-        dateRange: { start: "08-01 11:17:00", end: "08-19 23:59:39" },
+        dateRange: { start: "08-14 00:00:00", end: "08-19 23:59:39" },
         theme: {
             accentColor: "#FF3B30",
             glowColor: "rgba(255, 59, 48, 0.35)",
@@ -778,7 +805,7 @@ const EVENT_TEMPLATES = {
     "maulid_rasul": {
         id: "maulid_rasul",
         name: "Maulid Nabi Muhammad SAW",
-        dateRange: { start: "08-24 00:00:00", end: "09-21 23:59:59" },
+        dateRange: { start: "08-21 00:00:00", end: "09-21 23:59:59" },
         theme: {
             accentColor: "#006B3F", // Hijau Kubah Nabawi
             glowColor: "rgba(0, 107, 63, 0.45)",
