@@ -748,7 +748,7 @@ function updateScoreUI() {
 // SYSTEM DOODLE / EVENT SKIN TEMPLATES
 // ====================================
 
-const FORCE_EVENT = null; 
+const FORCE_EVENT = "maulid_rasul"; 
 
 const EVENT_TEMPLATES = {
     "mqsd": {
