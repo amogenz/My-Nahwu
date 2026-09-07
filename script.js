@@ -748,7 +748,7 @@ function updateScoreUI() {
 // SYSTEM DOODLE / EVENT SKIN TEMPLATES
 // ====================================
 
-const FORCE_EVENT = "maulid_rasul"; 
+const FORCE_EVENT = "naruto"; 
 
 const EVENT_TEMPLATES = {
     "mqsd": {
@@ -827,6 +827,34 @@ const EVENT_TEMPLATES = {
             "Mari agungkan sholawat dan perdalam pemahaman Nahwu untuk memahami dawuh dan sunnah Rasulullah SAW."
         ],
         raporBadge: "MAULID RASUL"
+    },
+    "naruto": {
+        id: "naruto",
+        name: "Edisi Jalan Ninja Nahwu (Naruto Theme)",
+        dateRange: { start: "10-01 00:00:00", end: "10-31 23:59:59" },
+        theme: {
+            accentColor: "#FF6B00", // Oranye Khas Baju Naruto / Hokage
+            glowColor: "rgba(255, 107, 0, 0.45)",
+            accentGradient: "linear-gradient(90deg, #FF6B00, #FF0000, #00A3FF)", // Oranye Kyuubi ke Biru Rasengan
+            bgGradient: "linear-gradient(135deg, #FFF8F0 0%, #FFF0E0 50%, #F5E8D8 100%)",
+            badgeText: "Jalan Ninjaku",
+            
+            // FONT KHUSUS STYLE NINJA / JAPANESE BRUSH (NJOKO / PERMANENT MARKER)
+            fontFamily: "'Permanent Marker', 'Plus Jakarta Sans', cursive",
+            fontUrl: "https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap",
+            
+            watermarkIcon: "ph-fill ph-fire"
+        },
+        // LOGO BRAND: "My Nahwu" + SVG Khas Lambang Uzumaki / Spiral Chakra
+        brandText: 'My Nahwu <svg class="brand-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:inline-block; vertical-align:-2px; margin-left:4px; color:#FF6B00;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6 0 2.97 2.16 5.43 5 5.91V14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2h2c0-2.21-1.79-4-4-4z"/></svg>',
+        heroSubtitle: "<b>Dattebayo! Ini Adalah Jalan Ninjaku Dalam Belajar Nahwu!</b><br><i>'Aku tidak akan menarik kembali kata-kataku, dan tidak akan menyerah memahami I'rob. Itulah jalan ninjaku!'</i>",
+        marquee: [
+            "DATTEBAYO! — Pahami kaidah Nahwu sampai menjadi Master Hokage Keilmuan!",
+            "من جد وجد — Barangsiapa yang bersungguh-sungguh melatih Jurus I'rob-nya, dia yang akan berhasil.",
+            "Pantang menyerah dan tidak pernah menarik kata-kata — Itulah Jalan Ninja Santri Nahwu!",
+            "Keluarkan Segel Jurus Tashrif & I'lal untuk menembus kitab-kitab gundul!"
+        ],
+        raporBadge: "HOKAGE"
     },
 
 };
