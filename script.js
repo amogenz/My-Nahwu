@@ -601,39 +601,53 @@ function setRandomMarquee() {
     }
 }
 
+// MEMORI CACHE LOCAL (Di tingkat aplikasi)
+
 function getDbUrl(dbName) {
-    const baseUrl = "https://cdn.jsdelivr.net/gh/amogenz/Amogenz/db";
-    const v = Date.now();
+    // 1. Gunakan raw.githubusercontent.com agar langsung ke origin GitHub
+    const baseUrl = "https://raw.githubusercontent.com/amogenz/Amogenz/main/db";
+    const cacheBuster = Date.now();
 
     switch(dbName) {
-        case 'lv1':          return `${baseUrl}/amogenzdb-lv1.js?v=${v}`;
-        case 'lv2':          return `${baseUrl}/amogenzdb-lv2.js?v=${v}`;
-        case 'alfiyah-fiil': return `${baseUrl}/amogenzdb-alfiyah-fiil.js?v=${v}`;
-        case 'alfiyah-isim': return `${baseUrl}/amogenzdb-alfiyah-isim.js?v=${v}`;
-        case 'shorof':       return `${baseUrl}/amogenzdb-shorof.js?v=${v}`;
-        case 'bina':       return `${baseUrl}/amogenzdb-bina.js?v=${v}`;
-        case 'tasrif':       return `${baseUrl}/amogenzdb-tasrif.js?v=${v}`;
-        default:             return `${baseUrl}/amogenzdb-lv1.js?v=${v}`;
+        case 'lv1':          return `${baseUrl}/amogenzdb-lv1.js?v=${cacheBuster}`;
+        case 'lv2':          return `${baseUrl}/amogenzdb-lv2.js?v=${cacheBuster}`;
+        case 'alfiyah-fiil': return `${baseUrl}/amogenzdb-alfiyah-fiil.js?v=${cacheBuster}`;
+        case 'alfiyah-isim': return `${baseUrl}/amogenzdb-alfiyah-isim.js?v=${cacheBuster}`;
+        case 'shorof':       return `${baseUrl}/amogenzdb-shorof.js?v=${cacheBuster}`;
+        case 'bina':         return `${baseUrl}/amogenzdb-bina.js?v=${cacheBuster}`;
+        case 'tasrif':       return `${baseUrl}/amogenzdb-tasrif.js?v=${cacheBuster}`;
+        default:             return `${baseUrl}/amogenzdb-lv1.js?v=${cacheBuster}`;
     }
 }
 
-async function loadDatabaseAsync(dbName) {
-    if (dbCache[dbName]) return dbCache[dbName];
+async function loadDatabaseAsync(dbName, forceReload = false) {
+    if (!forceReload && dbCache[dbName]) {
+        return dbCache[dbName];
+    }
 
     const url = getDbUrl(dbName);
+
+    // Dilarang menambah custom headers (Pragma/Cache-Control) agar tidak memicu kegagalan CORS Preflight
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`Gagal mengunduh database: ${dbName}`);
-    
+
+    if (!response.ok) {
+        throw new Error(`Gagal mengunduh database: ${dbName} (Status: ${response.status})`);
+    }
+
     const text = await response.text();
     const match = text.match(/export\s+const\s+AMOGENZ_DB_[A-Z0-9_]+\s*=\s*([\s\S]*?);?\s*$/);
-    if (!match || !match[1]) throw new Error(`Format data file ${dbName} tidak valid.`);
+    
+    if (!match || !match[1]) {
+        throw new Error(`Format data file ${dbName} tidak valid.`);
+    }
 
     let rawData = match[1].trim();
     const parsedData = new Function(`return ${rawData}`)();
-    
+
     dbCache[dbName] = parsedData;
     return parsedData;
 }
+
 // Variabel penyimpan teks laporan yang disiapkan
 let generatedReportText = "";
 
