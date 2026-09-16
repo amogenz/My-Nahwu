@@ -1,3 +1,22 @@
+// --- 1. IMPORT FIREBASE SDK (ES MODULES) ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+// --- 2. KONFIGURASI FIREBASE AMOGENZ ---
+const firebaseConfig = { 
+    apiKey: "AIzaSyBDyEfe83-_CzRchqcO_lLnuO6Rg9_AF_8", 
+    authDomain: "amogenz.firebaseapp.com", 
+    databaseURL: "https://amogenz-default-rtdb.asia-southeast1.firebasedatabase.app", 
+    projectId: "amogenz", 
+    storageBucket: "amogenz.firebasestorage.app", 
+    messagingSenderId: "864003468268", 
+    appId: "1:864003468268:web:7c861806529a0dacd66ec9" 
+};
+
+// --- 3. INISIALISASI DATABASE ---
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 // Hide Splash Screen
 window.addEventListener('load', () => {
   setTimeout(() => {
@@ -302,6 +321,7 @@ let dawuhIndex = 0;
 const TAB_ICONS = {
     home: { active: 'ph-fill ph-house', inactive: 'ph ph-house' },
     kartu: { active: 'ph-fill ph-cards', inactive: 'ph ph-cards' },
+    syarah: { active: 'ph-fill ph-sparkle', inactive: 'ph ph-sparkle' }, // 👈 Tambahkan baris ini
     info: { active: 'ph-fill ph-gear', inactive: 'ph ph-gear' }
 };
 
@@ -1528,8 +1548,182 @@ function exportResultPNG() {
 }
 
 // --- 13. PAGE NAVIGATION & SWITCHING ---
+
+// --- LOGIKA TAB SYARAH (READ-ONLY CACHE FIREBASE) ---
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    );
+}
+
+// 1. PARSER TEKS SYARAH (SAFE PARSER)
+function parseSyarahContent(rawText) {
+    if (!rawText) return '<div class="sd-paragraph-card">Detail syarah tidak tersedia.</div>';
+    
+    // Clean & Escape HTML
+    let text = String(rawText).replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    );
+
+    // Format Header Lafadz Khusus
+    text = text.replace(/===\s*LAFADZ:\s*(.*?)\s*===/gi, (match, word) => {
+        return `<div class="sd-lafadz-badge"><i class="ph-bold ph-book-bookmark"></i> LAFADZ: <strong>${word}</strong></div>`;
+    });
+
+    // Format Bold (**teks**) dengan Badge Highlight
+    text = text.replace(/\*\*(.*?)\*\*/g, '<span class="sd-highlight">$1</span>');
+
+    const lines = text.split('\n');
+    let formatted = '';
+
+    lines.forEach(line => {
+        const trimmed = line.trim();
+        
+        // Poin Berangka (Contoh: "1. Isim Majrur...") -> Kartu Poin dengan Pill Angka
+        if (/^\d+\./.test(trimmed)) {
+            const match = trimmed.match(/^(\d+)\.\s*(.*)/);
+            if (match) {
+                formatted += `
+                    <div class="sd-point-card">
+                        <span class="sd-point-num">${match[1]}</span>
+                        <div class="sd-point-text">${match[2]}</div>
+                    </div>`;
+            } else {
+                formatted += `<div class="sd-point-card"><div class="sd-point-text">${trimmed}</div></div>`;
+            }
+        } 
+        // Paragraf Biasa -> Kartu Keterangan Inset
+        else if (trimmed !== '') {
+            formatted += `<div class="sd-paragraph-card">${trimmed}</div>`;
+        }
+    });
+
+    return formatted || `<div class="sd-paragraph-card">${text}</div>`;
+}
+
+
+// 2. FETCH & BIND DATA GRID FIREBASE (AUTO-DETECT FIELDS)
+function initExploreSyarahSync() {
+    const grid = document.getElementById('syarah-grid');
+    const badge = document.getElementById('syarah-count-badge');
+    if (!grid) return;
+
+    grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 25px; font-size:0.8rem; color: var(--ios-gray);">Memuat data dari Firebase...</p>';
+
+    const cacheRef = ref(db, 'syarah_cache');
+
+    onValue(cacheRef, (snapshot) => {
+        grid.innerHTML = '';
+
+        if (!snapshot.exists()) {
+            if (badge) badge.innerText = '0 Tersimpan';
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 25px; font-size:0.85rem; color: var(--text-tertiary);">Belum ada riwayat tersimpan.</p>';
+            return;
+        }
+
+        const val = snapshot.val();
+        const keys = Object.keys(val);
+        if (badge) badge.innerText = `${keys.length} Tersimpan`;
+
+        keys.reverse().forEach(key => {
+            const item = val[key];
+
+            // Auto-detect nama field lafadz & isi syarah dari Firebase
+            const originalInput = item.original_input || item.text || item.lafadz || item.title || "Lafadz";
+            const resultText = item.result || item.content || item.syarah || item.explanation || item.detail || "";
+            const timestamp = item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : (item.date || "-");
+
+            const card = document.createElement('div');
+            card.className = 'syarah-card-item';
+            card.innerHTML = `
+                <div class="sci-arabic">${originalInput}</div>
+                <div class="sci-date">${timestamp}</div>
+            `;
+
+            // Kirim objek data lengkap ke fungsi detail
+            card.onclick = () => openSyarahDetail(originalInput, resultText);
+            grid.appendChild(card);
+        });
+    }, (error) => {
+        console.error("Firebase Error:", error);
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 25px; font-size:0.8rem; color: var(--ios-red);">Gagal memuat data dari database.</p>';
+    });
+}
+
+// 3. FUNGSI BUKA DETAIL SYARAH (PERBAIKAN DOM RENDER)
+function openSyarahDetail(title, content) {
+    const mainView = document.getElementById('syarah-main-view');
+    const detailView = document.getElementById('syarah-detail-view');
+    const titleEl = document.getElementById('syarah-detail-title');
+    const bodyEl = document.getElementById('syarah-detail-body');
+    const btnCopy = document.getElementById('btn-copy-syarah-detail');
+
+    if (!titleEl || !bodyEl || !mainView || !detailView) {
+        console.error("Elemen DOM Syarah Detail tidak ditemukan.");
+        return;
+    }
+
+    // Pastikan string tidak kosong
+    const safeTitle = title && title !== "" ? title : "Lafadz";
+    const safeContent = content && content !== "" ? content : "Tidak ada detail isi syarah yang tersimpan.";
+
+    // Render ke layar
+    titleEl.innerText = safeTitle;
+    bodyEl.innerHTML = parseSyarahContent(safeContent);
+
+    // Switch tampilan
+    mainView.style.display = 'none';
+    detailView.style.display = 'block';
+
+    if (btnCopy) {
+        btnCopy.onclick = () => {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(safeContent);
+                if (typeof showToast === 'function') showToast("Syarah disalin!");
+            }
+        };
+    }
+}
+
+
+function showExploreDetail(item) {
+    const detailView = document.getElementById('explore-detail-view');
+    const detailContent = document.getElementById('explore-detail-content');
+    const detailTitle = document.getElementById('explore-detail-title');
+    const mainView = document.getElementById('explore-main-view');
+    const exploreHeader = document.querySelector('.explore-header-box');
+
+    if (detailContent && detailView) {
+        if (detailTitle) detailTitle.innerText = item.text;
+        detailContent.innerHTML = parseSyarahMarkdown(item.content);
+        
+        if (mainView) mainView.style.display = 'none';
+        if (exploreHeader) exploreHeader.style.display = 'none';
+        detailView.style.display = 'block';
+
+        const btnCopy = document.getElementById('btn-copy-explore');
+        if (btnCopy) {
+            btnCopy.onclick = () => {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(item.content);
+                    if (typeof showToast === 'function') showToast("Hasil syarah disalin!");
+                }
+            };
+        }
+    }
+}
+
+// 1. FUNGSI KEMBALI DARI DETAIL KE RIWAYAT
+function closeSyarahDetail() {
+    const mainView = document.getElementById('syarah-main-view');
+    const detailView = document.getElementById('syarah-detail-view');
+
+    if (detailView) detailView.style.display = 'none';
+    if (mainView) mainView.style.display = 'block';
+}
+
 function switchPage(pageName) {
-    // === TAMBAHKAN BARIS INI ===
     trackUmami('buka_tab_menu', { nama_tab: pageName });
 
     document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
@@ -1537,6 +1731,12 @@ function switchPage(pageName) {
     const targetPage = document.getElementById(`page-${pageName}`);
     if (targetPage) targetPage.classList.add('active');
     
+    // ✅ PERBAIKAN: Gunakan closeSyarahDetail()
+    if (pageName === 'syarah') {
+        closeSyarahDetail();
+        initExploreSyarahSync();
+    }
+
     document.querySelectorAll('.tab-button').forEach(btn => {
         const btnPage = btn.getAttribute('data-page');
         const iconEl = btn.querySelector('.tab-icon');
@@ -1916,6 +2116,23 @@ if (btnDiscardAction) {
 
 // Cek jika ada sesi tersimpan saat aplikasi pertama kali dimuat
 checkSavedSessionUI();
+
+// Tambahkan di dalam initApp():
+const btnBackExplore = document.getElementById('btn-back-explore');
+if (btnBackExplore) {
+    btnBackExplore.addEventListener('click', closeExploreDetail);
+}
+// Cek jika ada sesi tersimpan saat aplikasi pertama kali dimuat
+    checkSavedSessionUI();
+
+    // ✅ Event Listener Tombol Kembali Syarah saat App Init
+    const btnBackSyarah = document.getElementById('btn-back-syarah');
+    if (btnBackSyarah) {
+        btnBackSyarah.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeSyarahDetail();
+        });
+    }
 
     //// init akhir
 }
