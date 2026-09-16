@@ -1181,6 +1181,83 @@ function showConfirmModal(title, msg, onConfirm) {
 
     els.fbBtn.onclick = () => closeModal(onConfirm);
 }
+// --- FUNGSI MANAJEMEN AUTO-SAVE SESI KUIS ---
+function saveActiveSession() {
+    if (!quizData || !quizData.analysis) return;
+    const sessionPayload = {
+        currentDatabase,
+        quizData,
+        wordIndex,
+        stepIndex,
+        quizScore,
+        comboStreak,
+        sessionHasError,
+        failedStepsHistory: Array.from(failedStepsHistory)
+    };
+    localStorage.setItem('mynahwu_saved_session', JSON.stringify(sessionPayload));
+}
+
+function clearActiveSession() {
+    localStorage.removeItem('mynahwu_saved_session');
+    checkSavedSessionUI();
+}
+
+function checkSavedSessionUI() {
+    const rawSaved = localStorage.getItem('mynahwu_saved_session');
+    const cardResume = document.getElementById('resume-session-card');
+    if (!cardResume) return;
+
+    if (rawSaved) {
+        try {
+            const data = JSON.parse(rawSaved);
+            const levelName = getLevelLabel(data.currentDatabase);
+            
+            const rscTitle = document.getElementById('rsc-title');
+            const rscSubtitle = document.getElementById('rsc-subtitle');
+            
+            if (rscTitle) rscTitle.innerText = levelName;
+            if (rscSubtitle) rscSubtitle.innerText = `Berhenti di Langkah ${data.stepIndex}`;
+            
+            cardResume.style.display = 'flex';
+        } catch(e) {
+            cardResume.style.display = 'none';
+        }
+    } else {
+        cardResume.style.display = 'none';
+    }
+}
+
+function resumeSavedSession() {
+    const rawSaved = localStorage.getItem('mynahwu_saved_session');
+    if (!rawSaved) return;
+
+    try {
+        const data = JSON.parse(rawSaved);
+        currentDatabase = data.currentDatabase;
+        quizData = data.quizData;
+        wordIndex = data.wordIndex;
+        stepIndex = data.stepIndex;
+        quizScore = data.quizScore;
+        comboStreak = data.comboStreak || 0;
+        sessionHasError = data.sessionHasError || false;
+        failedStepsHistory = new Set(data.failedStepsHistory || []);
+
+        // Sinkronkan UI grid kitab aktif
+        document.querySelectorAll('.ios-grid-item').forEach(b => {
+            if (b.getAttribute('data-db') === currentDatabase) b.classList.add('active');
+            else b.classList.remove('active');
+        });
+
+        updateScoreUI();
+        els.viewStart.style.display = 'none';
+        els.viewQuiz.style.display = 'flex';
+        renderQuestion();
+        showToast("Progres berhasil dilanjutkan!");
+    } catch(e) {
+        showToast("Gagal memuat sesi tersimpan");
+        clearActiveSession();
+    }
+}
 
 // --- 12. LOGIKA QUIZ SAFE & ANTI-UNDEFINED ---
 async function startLearningCycle() {
@@ -1373,6 +1450,7 @@ function handleAnswer(ans, data) {
 
 // SHOW RAPOR RESULT CARD & TRIGGER LEVEL MEDALS
 function showRewardPhase() {
+    clearActiveSession(); // Hapus simpanan sesi karena kuis sudah tuntas
     const userName = localStorage.getItem('mynahwu_user_name') || 'Pengguna My Nahwu';
     const userPP = localStorage.getItem('mynahwu_user_pp') || DEFAULT_AVATAR;
 
@@ -1754,29 +1832,33 @@ function initApp() {
     }
 
     document.getElementById('btn-start').addEventListener('click', () => {
-    trackUmami('mulai_belajar_diklik', { kitab_aktif: currentDatabase });
-    startLearningCycle();
+    if (localStorage.getItem('mynahwu_saved_session')) {
+        showConfirmModal(
+            'Mulai Kuis Baru?',
+            'Sesi kuis yang tersimpan sebelumnya akan dihapus.',
+            () => {
+                clearActiveSession();
+                trackUmami('mulai_belajar_diklik', { kitab_aktif: currentDatabase });
+                startLearningCycle();
+            }
+        );
+    } else {
+        trackUmami('mulai_belajar_diklik', { kitab_aktif: currentDatabase });
+        startLearningCycle();
+    }
 });
+
 
     
     // Confirmation Alert untuk Tombol Kembali
     document.getElementById('btn-back-home').addEventListener('click', () => {
-        showConfirmModal(
-            'Keluar dari Soal?',
-            'Progres pengerjaan soal saat ini akan hilang.',
-            () => {
-                els.viewQuiz.style.display = 'none';
-                els.viewStart.style.display = 'flex';
-                quizData = null;
-                wordIndex = 0;
-                stepIndex = 1;
-                quizScore = { correct: 0, wrong: 0, total: 0 };
-                failedStepsHistory.clear();
-                comboStreak = 0;
-                sessionHasError = false;
-            }
-        );
-    });
+    saveActiveSession(); // Otomatis simpan sesi saat kembali ke Home
+    els.viewQuiz.style.display = 'none';
+    els.viewStart.style.display = 'flex';
+    checkSavedSessionUI(); // Munculkan card di Home
+    showToast("Progres kuis tersimpan");
+});
+
     
     document.querySelectorAll('.ios-grid-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -1818,7 +1900,23 @@ function initApp() {
         btnSubmitReport.addEventListener('click', executeSendReport);
     }
 
-    
+    // Listener Tombol Sesi Card
+const btnResumeAction = document.getElementById('btn-resume-action');
+if (btnResumeAction) {
+    btnResumeAction.addEventListener('click', resumeSavedSession);
+}
+
+const btnDiscardAction = document.getElementById('btn-discard-action');
+if (btnDiscardAction) {
+    btnDiscardAction.addEventListener('click', () => {
+        clearActiveSession();
+        showToast("Sesi kuis dihapus");
+    });
+}
+
+// Cek jika ada sesi tersimpan saat aplikasi pertama kali dimuat
+checkSavedSessionUI();
+
     //// init akhir
 }
 

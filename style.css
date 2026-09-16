@@ -2172,3 +2172,85 @@ body[data-event] .rpc-bar-fill {
 .ios-footer-copyright {
     margin-top: 4px !important;
 }
+/* ==========================================
+   SESSION RESUME CARD (FROSTED GLASS GREEN)
+   ========================================== */
+.ios-resume-card {
+    background: rgba(52, 199, 89, 0.12);
+    backdrop-filter: blur(var(--card-blur));
+    -webkit-backdrop-filter: blur(var(--card-blur));
+    border: 1px solid rgba(52, 199, 89, 0.35);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 10px rgba(52, 199, 89, 0.1);
+}
+
+.rsc-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rsc-icon i {
+    font-size: 1.8rem;
+    color: var(--ios-green);
+}
+
+.rsc-text small {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--ios-green);
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.rsc-text h4 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #000000;
+    margin: 1px 0;
+}
+
+.rsc-text p {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.rsc-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rsc-btn.main {
+    background: var(--ios-green);
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    box-shadow: 0 2px 6px rgba(52, 199, 89, 0.3);
+}
+
+.rsc-btn.icon-only {
+    background: rgba(255, 59, 48, 0.12);
+    color: var(--ios-red);
+    border: 0.5px solid rgba(255, 59, 48, 0.3);
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.rsc-btn:active {
+    opacity: 0.6;
+}
