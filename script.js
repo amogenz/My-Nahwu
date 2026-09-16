@@ -10,6 +10,12 @@ window.addEventListener('load', () => {
 const DEFAULT_AVATAR = 'https://i.ibb.co.com/G4JH6kXK/My-Nahwu.webp';
 const SECRET_SALT = "AmogenzSecretKey2026_N3hwv_SecureRank";
 const MEDAL_SECRET_SALT = "AmogenzNusantaraMedals2026_SecureHash";
+// FUNGSI SAFE TRACKER UMAMI
+function trackUmami(eventName, eventData = {}) {
+    if (window.umami && typeof window.umami.track === 'function') {
+        window.umami.track(eventName, eventData);
+    }
+}
 
 // SVG ICONS DICTIONARY FOR RANKS
 const SVG_ICONS = {
@@ -657,6 +663,9 @@ function openReportModal() {
         showToast("⚠️ Belum ada soal yang aktif");
         return;
     }
+    // === TAMBAHKAN BARIS INI ===
+    trackUmami('lapor_soal_diklik', { id_kalimat: quizData.id || 'unknown' });
+
 
     const curWord = quizData.analysis[wordIndex];
     const totalWords = quizData.analysis.length;
@@ -1401,6 +1410,9 @@ function showRewardPhase() {
 
 // EXPORT RESULT CARD TO PNG (ULTRA HD / WA HD READY)
 function exportResultPNG() {
+    // === TAMBAHKAN BARIS INI ===
+    trackUmami('unduh_rapor_png', { kitab: currentDatabase });
+    
     const cardElement = document.getElementById('result-card-render');
     if (!cardElement || typeof html2canvas === 'undefined') {
         alert("Fitur gambar sedang disiapkan, brey!");
@@ -1439,6 +1451,9 @@ function exportResultPNG() {
 
 // --- 13. PAGE NAVIGATION & SWITCHING ---
 function switchPage(pageName) {
+    // === TAMBAHKAN BARIS INI ===
+    trackUmami('buka_tab_menu', { nama_tab: pageName });
+
     document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
     
     const targetPage = document.getElementById(`page-${pageName}`);
@@ -1738,7 +1753,11 @@ function initApp() {
         });
     }
 
-    document.getElementById('btn-start').addEventListener('click', startLearningCycle);
+    document.getElementById('btn-start').addEventListener('click', () => {
+    trackUmami('mulai_belajar_diklik', { kitab_aktif: currentDatabase });
+    startLearningCycle();
+});
+
     
     // Confirmation Alert untuk Tombol Kembali
     document.getElementById('btn-back-home').addEventListener('click', () => {
@@ -1765,6 +1784,7 @@ function initApp() {
             const target = e.currentTarget;
             target.classList.add('active');
             currentDatabase = target.getAttribute('data-db');
+            trackUmami('pilih_kitab', { kitab: currentDatabase });
         });
     });
     
