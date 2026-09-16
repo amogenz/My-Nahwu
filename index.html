@@ -541,6 +541,60 @@
 
                 </div>
             </div>
+            
+<!-- PAGE 2.5: SYARAH (DI ANTARA KARTU DAN INFO) -->
+<div id="page-syarah" class="page-content">
+    <div class="ios-view-stack">
+        <h2 class="ios-page-title">Syarah & Riwayat</h2>
+
+        <!-- BANNER CTA REDIRECT NAHWU OS -->
+        <div class="ios-syarah-cta">
+            <div class="cta-left">
+                <div class="cta-icon-box">
+                    <i class="ph-fill ph-sparkle"></i>
+                </div>
+                <div class="cta-text">
+                    <h4>Analisis AI Syarah</h4>
+                    <p>Ingin mensyarahi lafadz baru? Gunakan AI di Nahwu OS.</p>
+                </div>
+            </div>
+            <a href="https://nahwu.amogenz.xyz/?tab=syarah" target="_blank" class="ios-cta-btn">
+                <span>Buka AI</span>
+                <i class="ph-bold ph-arrow-square-out"></i>
+            </a>
+        </div>
+
+        <!-- MAIN VIEW: GRID RIWAYAT FIREBASE -->
+        <div id="syarah-main-view" class="ios-inset-group">
+            <div class="syarah-group-header">
+                <span class="group-header">RIWAYAT TERSIMPAN</span>
+                <span id="syarah-count-badge" class="syarah-count-badge">0 Tersimpan</span>
+            </div>
+            
+            <div id="syarah-grid" class="syarah-grid"></div>
+        </div>
+
+        <!-- DETAIL VIEW: TAMPIL SAAT KARTU DIKLIK -->
+        <div id="syarah-detail-view" style="display: none;">
+            <button id="btn-back-syarah" class="ios-nav-back" style="margin-bottom: 12px;">
+                <i class="ph-bold ph-caret-left"></i>
+                <span>Kembali ke Riwayat</span>
+            </button>
+
+            <div class="ios-card-sheet">
+                <div class="syarah-detail-header">
+                    <h3 id="syarah-detail-title" class="syarah-arabic-title">-</h3>
+                    <button id="btn-copy-syarah-detail" class="ios-copy-btn">
+                        <i class="ph-bold ph-copy"></i> Salin
+                    </button>
+                </div>
+                <div id="syarah-detail-body" class="syarah-detail-body"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
             <!-- PAGE 3: INFO & SETTINGS -->
             <div id="page-info" class="page-content">
@@ -953,22 +1007,28 @@
         </div>
  
         <!-- IOS LIGHT TAB BAR -->
-        <nav class="ios-tabbar">
-            <button class="tab-button active" data-page="home">
-                <i class="tab-icon ph-fill ph-house"></i>
-                <span>Home</span>
-            </button>
+<nav class="ios-tabbar">
+    <button class="tab-button active" data-page="home">
+        <i class="tab-icon ph-fill ph-house"></i>
+        <span>Home</span>
+    </button>
 
-            <button class="tab-button" data-page="kartu">
-                <i class="tab-icon ph ph-cards"></i>
-                <span>Kartu</span>
-            </button>
+    <button class="tab-button" data-page="kartu">
+        <i class="tab-icon ph ph-cards"></i>
+        <span>Kartu</span>
+    </button>
 
-            <button class="tab-button" data-page="info">
-                <i class="tab-icon ph ph-gear"></i>
-                <span>Info</span>
-            </button>
-        </nav>
+    <button class="tab-button" data-page="syarah">
+        <i class="tab-icon ph ph-sparkle"></i>
+        <span>Syarah</span>
+    </button>
+
+    <button class="tab-button" data-page="info">
+        <i class="tab-icon ph ph-gear"></i>
+        <span>Info</span>
+    </button>
+</nav>
+
     </div>
 
     <script type="module" src="script.js"></script>
