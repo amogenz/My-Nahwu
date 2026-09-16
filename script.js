@@ -1604,6 +1604,7 @@ function parseSyarahContent(rawText) {
 
 
 // 2. FETCH & BIND DATA GRID FIREBASE (AUTO-DETECT FIELDS)
+
 function initExploreSyarahSync() {
     const grid = document.getElementById('syarah-grid');
     const badge = document.getElementById('syarah-count-badge');
@@ -1623,12 +1624,25 @@ function initExploreSyarahSync() {
         }
 
         const val = snapshot.val();
-        const keys = Object.keys(val);
-        if (badge) badge.innerText = `${keys.length} Tersimpan`;
+        
+        // Konversi objek Firebase menjadi array
+        const items = Object.entries(val).map(([key, data]) => ({ key, ...data }));
 
-        keys.reverse().forEach(key => {
-            const item = val[key];
+        // Urutkan paling baru di paling atas (descending)
+        items.sort((a, b) => {
+            const timeA = new Date(a.created_at || a.date || 0).getTime() || 0;
+            const timeB = new Date(b.created_at || b.date || 0).getTime() || 0;
 
+            if (timeA && timeB && timeA !== timeB) {
+                return timeB - timeA;
+            }
+            // Fallback jika timestamp tidak ada/sama: urutkan berdasarkan Firebase Push Key
+            return b.key.localeCompare(a.key);
+        });
+
+        if (badge) badge.innerText = `${items.length} Tersimpan`;
+
+        items.forEach(item => {
             // Auto-detect nama field lafadz & isi syarah dari Firebase
             const originalInput = item.original_input || item.text || item.lafadz || item.title || "Lafadz";
             const resultText = item.result || item.content || item.syarah || item.explanation || item.detail || "";
@@ -1650,6 +1664,7 @@ function initExploreSyarahSync() {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 25px; font-size:0.8rem; color: var(--ios-red);">Gagal memuat data dari database.</p>';
     });
 }
+
 
 // 3. FUNGSI BUKA DETAIL SYARAH (PERBAIKAN DOM RENDER)
 function openSyarahDetail(title, content) {
