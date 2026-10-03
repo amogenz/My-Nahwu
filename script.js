@@ -791,7 +791,7 @@ function updateScoreUI() {
 // SYSTEM DOODLE / EVENT SKIN TEMPLATES
 // ====================================
 
-const FORCE_EVENT = "naruto"; 
+const FORCE_EVENT = "hsn2026"; 
 
 const EVENT_TEMPLATES = {
     "mqsd": {
@@ -820,6 +820,33 @@ const EVENT_TEMPLATES = {
             "اللَّهُمَّ انْفَعْنَا بِمَا عَلَّمْتَنَا وَعَلِّمْنَا مَا يَنْفَعُنَا — Melanggengkan sanad dan kebersamaan santri Maqoshidana."
         ],
         raporBadge: "MQSD 20"
+    },
+    "hsn2026": {
+        id: "hsn2026",
+        name: "Hari Santri Nasional 2026",
+        dateRange: { start: "10-15 00:00:00", end: "10-22 23:59:59" },
+        theme: {
+            accentColor: "#00A859", // Hijau Emerald — warna khas santri & NU
+            glowColor: "rgba(0, 168, 89, 0.25)",
+            accentGradient: "linear-gradient(90deg, #111827, #00A859, #F5B301)", // Hitam → Emerald → Emas (bintang logo HSN 2026)
+            bgGradient: "linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 50%, #D1D5DB 100%)", // Latar Light Neutral Bersih
+            badgeText: "Hari Santri Nasional 2026",
+
+            fontFamily: "'Russo One', sans-serif",
+            fontUrl: "https://fonts.googleapis.com/css2?family=Russo+One&display=swap",
+
+            watermarkIcon: "ph-fill ph-book-open" // Kitab kuning — ikon santri
+        },
+        brandText: 'My Nahwu <svg class="brand-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:inline-block; vertical-align:-2px; margin-left:4px; color:#00A859;"><path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18C5 19.5 8.13 21 12 21C15.87 21 19 19.5 19 17.18V13.18L12 17L5 13.18Z"/></svg>',
+
+        heroSubtitle: "<b>Selamat Hari Santri Nasional 2026!</b><br><i>'Menguatkan Akar Tradisi, Menjaga Keutuhan Negeri — dari bilik pesantren, untuk Indonesia.'</i>",
+        marquee: [
+            "Selamat Hari Santri Nasional 2026 — Menguatkan Akar Tradisi, Menjaga Keutuhan Negeri!",
+            "22 Oktober 1945: Resolusi Jihad — santri berdiri di garda terdepan kemerdekaan Indonesia.",
+            "Santri hari ini: menguasai ilmu dan teknologi, tanpa tercerabut dari sanad, adab, dan tradisi para masyayikh.",
+            "رَبِّ زِدْنِي عِلْمًا وَارْزُقْنِي فَهْمًا — Ya Allah, tambahkanlah ilmuku dan berilah aku pemahaman."
+        ],
+        raporBadge: "HSN 26"
     },
     "17_agustus": {
         id: "17_agustus",
