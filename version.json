@@ -1,6 +1,6 @@
 {
  "app": "my-nahwu",
- "build": "2026-11-18T09:13:24Z",
- "notes": "Fase 1: integrasi Aksara via Akun AMOGENZ (login PKCE, callback oauth, jembatan skor lokal)",
- "version": "1.1.0"
+ "build": "2026-11-18T09:25:00Z",
+ "notes": "Fase 1 revisi: syncAchievements() ke amgz_users/<amgz_id>/myNahwu (keputusan Bos 16:16 WIB), bukan users/. Tulis klien masih diblokir rules RTDB (.write belum ada) — draf aturan di amgz_users-myNahwu-rules-2026-11-18.json, belum diterbitkan.",
+ "version": "1.1.1"
 }

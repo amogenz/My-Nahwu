@@ -18,8 +18,16 @@ const CLIENT_ID = 'my-nahwu';
 const REDIRECT = 'https://nahwu.amogenz.my.id/oauth/callback';
 
 // Firebase proyek amogenz-inc (dipakai HANYA untuk jembatan tulis ke
-// users/<username>/myNahwu — data My Nahwu sendiri tetap di proyek amogenz).
+// amgz_users/<amgz_id>/myNahwu — keputusan Bos 16:16 WIB: pencapaian
+// disimpan di Akun AMOGENZ, BUKAN di database Aksara (users/).
+// Data My Nahwu sendiri tetap di proyek amogenz.
 // Web API key publik by design (sama seperti di callback Aksara yang live).
+// CATATAN: rules RTDB amogenz-inc saat ini HANYA punya .read di
+// amgz_users/$amgzId (tanpa .write) — tulis dari klien DITOLAK server
+// (403 Permission denied) sampai aturan tulis scoped untuk myNahwu
+// diterbitkan (lihat amgz_users-myNahwu-rules.json di samping file ini).
+// syncAchievements() gagal secara JUJUR (setSyncNote 'sync-diblokir'),
+// TIDAK diam-diam dan TIDAK dialihkan ke node lain.
 const FB_API_KEY = '<redacted>';
 const RTDB_INC = 'https://amogenz-inc-default-rtdb.asia-southeast1.firebasedatabase.app';
 
@@ -191,37 +199,17 @@ async function getFirebaseIdToken() {
   return { ok: true, idToken: st.idToken };
 }
 
-// --- Cari userKey Aksara: users/<username> lalu usersByUid/<uid> (pola Nuqtoh) ---
-async function rtdbGet(path, idToken) {
-  try {
-    const r = await fetch(RTDB_INC + '/' + path + '.json?auth=' + encodeURIComponent(idToken));
-    if (!r.ok) return null;
-    return await r.json();
-  } catch (e) { return null; }
-}
-
-async function resolveUsernameKey(idToken) {
-  const me = getIdentity();
-  const portalKey = (me?.username || '').toLowerCase();
-  if (portalKey) {
-    const u = await rtdbGet('users/' + portalKey, idToken);
-    if (u && u !== null) return portalKey;
-  }
-  const uid = localStorage.getItem('mynahwu_fb_uid');
-  if (uid) {
-    const byUid = await rtdbGet('usersByUid/' + uid, idToken);
-    if (typeof byUid === 'string' && byUid) return byUid.toLowerCase();
-  }
-  return null;
-}
-
-// --- Payload → record RTDB users/<username>/myNahwu (amogenz-inc) --------------
+// --- Payload → record RTDB amgz_users/<amgz_id>/myNahwu (amogenz-inc) -------
+// Path diputuskan Bos 16:16 WIB. Field hanya yang dibutuhkan Aksara untuk
+// pil profil; amgz_id tidak disimpan di dalam record (sudah ada di path).
 function toRecord(me, payload) {
   return {
-    amgzId: me.amgzId,
     rank: payload.rank,
+    rankPosition: payload.rankPosition,
     correctAnswers: payload.totalBenar,
+    totalPoin: payload.totalPoin,
     medals: payload.medaliTerbuka,
+    medalsCount: payload.medaliJumlah,
     showInProfile: payload.tampil,
     kitab: payload.kitabTerakhir,   // kitab aktif saat sinkron (bukan riwayat)
     dbKey: payload.dbKey,
@@ -230,9 +218,12 @@ function toRecord(me, payload) {
   };
 }
 
-// --- Sinkronisasi pencapaian ke RTDB (dipanggil sesudah login & tiap berubah) ---
-// Tulis HANYA record di atas, ke SATU path. Kegagalan TIDAK diam-diam:
-// status ditulis ke #aksara-sync-note agar pengguna tahu apa yang terjadi.
+// --- Sinkronisasi pencapaian ke amgz_users (dipanggil sesudah login & tiap berubah) ---
+// Tulis HANYA record di atas, ke SATU path amgz_users/<amgz_id>/myNahwu.
+// Auth: Firebase ID token (amogenz-inc) dari /api/oauth/firebase-token —
+// token ini membuktikan pemilik lewat rantai usersByUid → users/<username>/amgz_id.
+// Kegagalan TIDAK diam-diam: status ditulis ke #aksara-sync-note.
+// 403 = rules belum mengizinkan tulis myNahwu (lihat catatan di atas).
 async function syncAchievements() {
   const me = getIdentity();
   if (!me) return { ok: false, reason: 'belum-terhubung' };
@@ -243,14 +234,9 @@ async function syncAchievements() {
     setSyncNote(fb.reason);
     return { ok: false, reason: fb.reason };
   }
-  const userKey = await resolveUsernameKey(fb.idToken);
-  if (!userKey) {
-    setSyncNote('needs-aksara-account');
-    return { ok: false, reason: 'needs-aksara-account' };
-  }
   const record = toRecord(me, payload);
   const put = async (token) => fetch(
-    RTDB_INC + '/users/' + encodeURIComponent(userKey) + '/myNahwu.json?auth=' + encodeURIComponent(token),
+    RTDB_INC + '/amgz_users/' + encodeURIComponent(me.amgzId) + '/myNahwu.json?auth=' + encodeURIComponent(token),
     { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(record) });
   let r = await put(fb.idToken);
   if (r.status === 401) { // ID token basi — paksa refresh lalu coba sekali lagi
@@ -261,12 +247,16 @@ async function syncAchievements() {
   if (!r.ok) {
     const t = await r.text().catch(() => '');
     console.warn('[aksara] tulis myNahwu gagal:', r.status, t.slice(0, 120));
+    if (r.status === 403) {
+      setSyncNote('sync-diblokir');
+      return { ok: false, reason: 'tulis-ditolak-rules', status: r.status };
+    }
     setSyncNote('sync-gagal');
     return { ok: false, reason: 'tulis-gagal', status: r.status };
   }
   localStorage.setItem('mynahwu_amgz_last_sync', String(Date.now()));
   setSyncNote('ok');
-  return { ok: true, userKey, record };
+  return { ok: true, record };
 }
 
 // --- Status sinkronisasi di UI (jujur, tidak diam-diam) -------------------------
@@ -281,6 +271,8 @@ function setSyncNote(state) {
     el.textContent = 'Akun Aksara belum ada — buka app Aksara dulu untuk membuat profil, lalu kembali ke sini untuk sinkron.';
   } else if (state === 'sync-gagal') {
     el.textContent = 'Sinkronisasi gagal — periksa koneksi lalu buka kembali Pengaturan.';
+  } else if (state === 'sync-diblokir') {
+    el.textContent = 'Pencapaian belum bisa disimpan ke Akun AMOGENZ — izin tulis server belum dibuka. Login tetap tersimpan; coba sinkron lagi nanti.';
   } else if (state === 'firebase-token-gagal' || state === 'firebase-signin-gagal') {
     el.textContent = 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.';
   } else {
