@@ -22,12 +22,12 @@ const REDIRECT = 'https://nahwu.amogenz.my.id/oauth/callback';
 // disimpan di Akun AMOGENZ, BUKAN di database Aksara (users/).
 // Data My Nahwu sendiri tetap di proyek amogenz.
 // Web API key publik by design (sama seperti di callback Aksara yang live).
-// CATATAN: rules RTDB amogenz-inc saat ini HANYA punya .read di
-// amgz_users/$amgzId (tanpa .write) — tulis dari klien DITOLAK server
-// (403 Permission denied) sampai aturan tulis scoped untuk myNahwu
-// diterbitkan (lihat amgz_users-myNahwu-rules.json di samping file ini).
-// syncAchievements() gagal secara JUJUR (setSyncNote 'sync-diblokir'),
-// TIDAK diam-diam dan TIDAK dialihkan ke node lain.
+// CATATAN: aturan tulis scoped myNahwu sudah TERBIT 18 Nov 2026 ~16:34 WIB
+// (Opsi A, titah Bos): .write hanya pemilik/admin, .read myNahwu hanya
+// bila showInProfile==true. Bila PUT tetap 403, itu bug yang harus
+// dilaporkan jujur — JANGAN dialihkan ke node lain.
+// syncAchievements() TIDAK BOLEH gagal diam-diam: setiap kegagalan
+// dicatat alasannya (lastSyncError) dan ditampilkan di UI.
 const FB_API_KEY = '<redacted>';
 const RTDB_INC = 'https://amogenz-inc-default-rtdb.asia-southeast1.firebasedatabase.app';
 
@@ -222,107 +222,234 @@ function toRecord(me, payload) {
 // Tulis HANYA record di atas, ke SATU path amgz_users/<amgz_id>/myNahwu.
 // Auth: Firebase ID token (amogenz-inc) dari /api/oauth/firebase-token —
 // token ini membuktikan pemilik lewat rantai usersByUid → users/<username>/amgz_id.
-// Kegagalan TIDAK diam-diam: status ditulis ke #aksara-sync-note.
-// 403 = rules belum mengizinkan tulis myNahwu (lihat catatan di atas).
+// TIDAK BOLEH gagal diam-diam: setiap jalan keluar (return) mencatat
+// alasannya di lastSyncError dan me-render ulang status — pelajaran dari
+// 18 Nov 16:37 WIB, saat sync Bos gagal tanpa jejak (catatan hanya bilang
+// "belum disinkronkan") padahal loginnya berhasil.
+let lastSyncError = null; // alasan sync terakhir gagal; null = belum pernah gagal / sudah berhasil
+
 async function syncAchievements() {
   const me = getIdentity();
-  if (!me) return { ok: false, reason: 'belum-terhubung' };
-  const payload = buildAchievementPayload();
-  if (!payload) return { ok: false, reason: 'bridge-skor-belum-siap' };
-  const fb = await getFirebaseIdToken();
+  if (!me) {
+    lastSyncError = 'belum-terhubung';
+    renderAksaraRow();
+    return { ok: false, reason: 'belum-terhubung' };
+  }
+  let payload = null;
+  try {
+    payload = buildAchievementPayload();
+  } catch (e) {
+    console.warn('[aksara] build payload gagal:', e);
+  }
+  if (!payload) {
+    lastSyncError = 'bridge-skor-belum-siap';
+    renderAksaraRow();
+    return { ok: false, reason: 'bridge-skor-belum-siap' };
+  }
+  let fb;
+  try {
+    fb = await getFirebaseIdToken();
+  } catch (e) {
+    console.warn('[aksara] getFirebaseIdToken gagal:', e);
+    lastSyncError = 'firebase-token-gagal';
+    renderAksaraRow();
+    return { ok: false, reason: 'firebase-token-gagal' };
+  }
   if (!fb.ok) {
-    setSyncNote(fb.reason);
+    lastSyncError = fb.reason || 'firebase-token-gagal';
+    renderAksaraRow();
     return { ok: false, reason: fb.reason };
   }
   const record = toRecord(me, payload);
   const put = async (token) => fetch(
     RTDB_INC + '/amgz_users/' + encodeURIComponent(me.amgzId) + '/myNahwu.json?auth=' + encodeURIComponent(token),
     { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(record) });
-  let r = await put(fb.idToken);
-  if (r.status === 401) { // ID token basi — paksa refresh lalu coba sekali lagi
-    localStorage.removeItem('mynahwu_fb_id_token');
-    const fb2 = await getFirebaseIdToken();
-    if (fb2.ok) r = await put(fb2.idToken);
+  let r;
+  try {
+    r = await put(fb.idToken);
+    if (r.status === 401) { // ID token basi — paksa refresh lalu coba sekali lagi
+      localStorage.removeItem('mynahwu_fb_id_token');
+      const fb2 = await getFirebaseIdToken();
+      if (fb2.ok) r = await put(fb2.idToken);
+    }
+  } catch (e) {
+    console.warn('[aksara] tulis myNahwu gagal (jaringan):', e);
+    lastSyncError = 'tulis-gagal';
+    renderAksaraRow();
+    return { ok: false, reason: 'tulis-gagal' };
   }
   if (!r.ok) {
     const t = await r.text().catch(() => '');
     console.warn('[aksara] tulis myNahwu gagal:', r.status, t.slice(0, 120));
-    if (r.status === 403) {
-      setSyncNote('sync-diblokir');
-      return { ok: false, reason: 'tulis-ditolak-rules', status: r.status };
-    }
-    setSyncNote('sync-gagal');
-    return { ok: false, reason: 'tulis-gagal', status: r.status };
+    lastSyncError = r.status === 403 ? 'tulis-ditolak-rules' : 'tulis-gagal';
+    renderAksaraRow();
+    return { ok: false, reason: lastSyncError, status: r.status };
   }
+  lastSyncError = null;
   localStorage.setItem('mynahwu_amgz_last_sync', String(Date.now()));
-  setSyncNote('ok');
+  renderAksaraRow();
   return { ok: true, record };
 }
 
-// --- Status sinkronisasi di UI (jujur, tidak diam-diam) -------------------------
-function setSyncNote(state) {
+// Coba sinkron beberapa kali (aturan server / token kadang butuh waktu).
+// Alasan yang tidak akan membaik dengan retry langsung dikembalikan.
+async function syncWithRetry(maxAttempts = 3) {
+  for (let i = 1; i <= maxAttempts; i++) {
+    const res = await syncAchievements();
+    if (res.ok) return res;
+    if (res.reason === 'belum-terhubung' || res.reason === 'needs-aksara-account') return res;
+    if (i < maxAttempts) await new Promise((r) => setTimeout(r, 1500 * i));
+  }
+  return { ok: false, reason: lastSyncError };
+}
+
+// --- Status sinkronisasi di UI: SATU sumber kebenaran -----------------------
+// Teks atas (#aksara-status-text) dan catatan bawah (#aksara-sync-note)
+// SELALU berasal dari keadaan yang sama — tidak boleh bertentangan lagi
+// (sebelumnya: atas bilang "tampil di profil" padahal bawah bilang
+// "belum disinkronkan" — itu yang membingungkan Bos).
+const SYNC_REASON_TEXT = {
+  'bridge-skor-belum-siap': 'Skor My Nahwu belum siap — tutup lalu buka lagi Pengaturan.',
+  'belum-terhubung': 'Belum terhubung — masuk dulu dengan Akun AMOGENZ.',
+  'needs-aksara-account': 'Akun Aksara belum ada — buka app Aksara dulu untuk membuat profil, lalu kembali ke sini.',
+  'firebase-token-gagal': 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.',
+  'firebase-signin-gagal': 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.',
+  'firebase-token-kosong': 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.',
+  'tulis-ditolak-rules': 'Sinkronisasi ditolak server (izin tulis). Login tetap tersimpan; coba lagi nanti.',
+  'tulis-gagal': 'Sinkronisasi gagal — periksa koneksi lalu ketuk “Sinkronkan sekarang”.',
+};
+
+function syncState() {
+  const me = getIdentity();
+  if (!me) return 'belum-terhubung';
+  if (!getShowInProfile()) return 'tersembunyi';
+  if (localStorage.getItem('mynahwu_amgz_last_sync')) return 'tersinkron';
+  if (lastSyncError) return 'gagal';
+  return 'belum-terkirim';
+}
+
+function applySyncStatus() {
+  const statusText = $('aksara-status-text');
   const el = $('aksara-sync-note');
-  if (!el) return;
+  const state = syncState();
   const last = Number(localStorage.getItem('mynahwu_amgz_last_sync') || 0);
   const jam = last ? new Date(last).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '';
-  if (state === 'ok') {
-    el.textContent = 'Pencapaian disinkronkan ke profil Aksara' + (jam ? ' · ' + jam : '') + '.';
-  } else if (state === 'needs-aksara-account') {
-    el.textContent = 'Akun Aksara belum ada — buka app Aksara dulu untuk membuat profil, lalu kembali ke sini untuk sinkron.';
-  } else if (state === 'sync-gagal') {
-    el.textContent = 'Sinkronisasi gagal — periksa koneksi lalu buka kembali Pengaturan.';
-  } else if (state === 'sync-diblokir') {
-    el.textContent = 'Pencapaian belum bisa disimpan ke Akun AMOGENZ — izin tulis server belum dibuka. Login tetap tersimpan; coba sinkron lagi nanti.';
-  } else if (state === 'firebase-token-gagal' || state === 'firebase-signin-gagal') {
-    el.textContent = 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.';
-  } else {
-    el.textContent = 'Pencapaian belum disinkronkan ke profil Aksara.';
+  const statusMap = {
+    'belum-terhubung': 'Belum terhubung ke Akun AMOGENZ',
+    'tersembunyi': 'Terhubung — disembunyikan dari profil Aksara',
+    'belum-terkirim': 'Terhubung — pencapaian belum terkirim',
+    'tersinkron': 'Terhubung — tampil di profil Aksara',
+    'gagal': 'Terhubung — sinkronisasi gagal',
+  };
+  if (statusText) statusText.textContent = statusMap[state];
+  if (!el) return;
+  if (state === 'belum-terhubung') {
+    el.textContent = 'Masuk dengan Akun AMOGENZ untuk menautkan pencapaian My Nahwu ke profil Aksara.';
+  } else if (state === 'tersembunyi') {
+    el.textContent = 'Pencapaian disembunyikan dari profil Aksara karena saklar mati. Nyalakan saklar untuk menampilkan lagi.';
+  } else if (state === 'belum-terkirim') {
+    el.textContent = 'Pencapaian belum terkirim ke profil Aksara. Ketuk “Sinkronkan sekarang” di bawah.';
+  } else if (state === 'tersinkron') {
+    el.textContent = 'Pencapaian disinkronkan ke profil Aksara' + (jam ? ' · ' + jam : '') + '.'
+      + (lastSyncError ? ' Sinkronisasi terakhir gagal: ' + (SYNC_REASON_TEXT[lastSyncError] || 'coba lagi nanti.') : '');
+  } else { // gagal
+    el.textContent = (SYNC_REASON_TEXT[lastSyncError] || 'Sinkronisasi gagal — coba lagi nanti.')
+      + ' Ketuk “Sinkronkan sekarang” untuk mencoba lagi.';
   }
 }
 
-// --- UI Pengaturan -----------------------------------------------------------
+// Kompatibilitas: pemanggil lama memakai setSyncNote(state).
+function setSyncNote(state) {
+  if (state === 'ok') {
+    lastSyncError = null;
+  } else if (state === 'sync-gagal') {
+    lastSyncError = 'tulis-gagal';
+  } else if (state === 'sync-diblokir') {
+    lastSyncError = 'tulis-ditolak-rules';
+  } else if (state === 'needs-aksara-account' || state === 'firebase-token-gagal'
+    || state === 'firebase-signin-gagal' || state === 'firebase-token-kosong'
+    || state === 'bridge-skor-belum-siap' || state === 'belum-terhubung') {
+    lastSyncError = state;
+  } else {
+    lastSyncError = null; // 'belum' generik = belum pernah tersinkron, bukan error
+  }
+  applySyncStatus();
+}
+
+// --- UI Pengaturan: kartu Akun AMOGENZ ala Pusat Akun -----------------------
 function renderAksaraRow() {
   const loginBox = $('aksara-login-box');
   const linkedBox = $('aksara-linked-box');
-  const statusText = $('aksara-status-text');
   const nameEl = $('aksara-linked-name');
   const subEl = $('aksara-linked-sub');
+  const emailEl = $('aksara-linked-email');
+  const avatarImg = $('aksara-linked-avatar');
+  const avatarFb = $('aksara-linked-avatar-fallback');
+  const sinceEl = $('aksara-linked-since');
   const rankEl = $('aksara-linked-rank');
   const toggle = $('aksara-show-toggle');
-  const syncNote = $('aksara-sync-note');
   if (!loginBox || !linkedBox) return; // halaman Pengaturan belum dirender
   const me = getIdentity();
   if (!me) {
     loginBox.hidden = false;
     linkedBox.hidden = true;
-    if (statusText) statusText.textContent = 'Tampilkan rank, poin & medali di profil Aksara';
+    applySyncStatus(); // "Belum terhubung ke Akun AMOGENZ"
     return;
   }
   loginBox.hidden = true;
   linkedBox.hidden = false;
-  if (nameEl) nameEl.textContent = 'Masuk sebagai ' + (me.name || me.username || 'Pengguna AMOGENZ');
+  // Kartu Akun AMOGENZ: foto (atau huruf awal bila kosong), nama, @username,
+  // email, dan tanggal tertaut — semuanya dari identitas lokal yang sudah
+  // tersimpan saat login; tidak ada data yang dikarang.
+  if (nameEl) nameEl.textContent = me.name || me.username || 'Pengguna AMOGENZ';
   if (subEl) subEl.textContent = 'Tertaut ke @' + (me.username || '—');
-  if (toggle) toggle.checked = getShowInProfile();
-  const p = buildAchievementPayload();
-  if (rankEl) {
-    rankEl.textContent = p
-      ? p.rank + ' · ' + p.totalBenar + ' jawaban benar · My Nahwu'
-      : 'My Nahwu';
-  }
-  if (syncNote) {
-    if (!getShowInProfile()) {
-      syncNote.textContent = 'Pencapaian disembunyikan dari profil Aksara (saklar mati).';
-    } else if (localStorage.getItem('mynahwu_amgz_last_sync')) {
-      setSyncNote('ok');
+  if (emailEl) {
+    if (me.email) {
+      emailEl.textContent = me.email;
+      emailEl.hidden = false;
     } else {
-      setSyncNote('belum');
+      emailEl.hidden = true;
     }
   }
-  if (statusText) {
-    statusText.textContent = getShowInProfile()
-      ? 'Terhubung — tampil di profil Aksara'
-      : 'Terhubung — disembunyikan dari profil Aksara';
+  const initial = ((me.name || me.username || 'A').trim()[0] || 'A').toUpperCase();
+  if (avatarImg && avatarFb) {
+    if (me.picture) {
+      avatarImg.src = me.picture;
+      avatarImg.hidden = false;
+      avatarFb.hidden = true;
+    } else {
+      avatarImg.hidden = true;
+      avatarFb.textContent = initial;
+      avatarFb.hidden = false;
+    }
   }
+  if (sinceEl) {
+    if (me.linkedAt) {
+      sinceEl.textContent = 'Tertaut sejak ' + new Date(me.linkedAt)
+        .toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + '.';
+      sinceEl.hidden = false;
+    } else {
+      sinceEl.hidden = true;
+    }
+  }
+  if (toggle) toggle.checked = getShowInProfile();
+  // Pil rank: skor 0 BUKAN pencapaian — jangan tampilkan "PRAJURIT · 0
+  // jawaban benar" seolah sudah ada pencapaian. Tampilkan ajakan kuis.
+  const p = buildAchievementPayload();
+  if (rankEl) {
+    if (p && p.totalBenar > 0) {
+      rankEl.className = 'aksara-linked-rank';
+      rankEl.textContent = p.rank + ' · ' + p.totalBenar + ' jawaban benar · My Nahwu';
+    } else if (p) {
+      rankEl.className = 'aksara-linked-rank aksara-rank-empty';
+      rankEl.textContent = 'Belum ada jawaban benar — jawab kuis dulu untuk mulai naik rank.';
+    } else {
+      rankEl.className = 'aksara-linked-rank aksara-rank-empty';
+      rankEl.textContent = 'Skor My Nahwu belum siap — tutup lalu buka lagi Pengaturan.';
+    }
+  }
+  // Status atas + catatan bawah dari SATU sumber (applySyncStatus).
+  applySyncStatus();
 }
 
 // --- Putuskan koneksi ---------------------------------------------------------
@@ -343,12 +470,38 @@ async function disconnectAksara() {
 document.addEventListener('DOMContentLoaded', () => {
   $('btn-amogenz-login')?.addEventListener('click', startAmogenzLogin);
   $('btn-aksara-disconnect')?.addEventListener('click', disconnectAksara);
+  $('btn-aksara-sync')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    if (btn) btn.disabled = true;
+    try {
+      await syncWithRetry(2);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
   $('aksara-show-toggle')?.addEventListener('change', async (e) => {
     localStorage.setItem('mynahwu_amgz_show', e.target.checked ? '1' : '0');
     renderAksaraRow();
-    await syncAchievements(); // kirim ulang flag tampil
+    await syncWithRetry(2); // kirim ulang flag tampil
   });
   renderAksaraRow();
-  // Sesudah login: sinkronkan sekali (bila bridge sudah dikonfigurasi).
-  if (getIdentity()) syncAchievements().catch((e) => console.warn('[aksara] sync gagal:', e));
+  // Sesudah login: sinkronkan (dengan retry) bila bridge sudah dikonfigurasi.
+  // Bila Pengaturan dibuka belakangan (SPA, tanpa reload), sync dicoba lagi
+  // lewat pembungkus switchPage di bawah — DOMContentLoaded hanya jalan sekali.
+  if (getIdentity()) syncWithRetry(3);
+  // Buka Pengaturan (tab Info) → render ulang + coba sync bila belum pernah berhasil.
+  const bridge = window.MyNahwuBridge;
+  if (bridge && !bridge.__aksaraWrapped) {
+    bridge.__aksaraWrapped = true;
+    const origSwitch = bridge.switchPage;
+    bridge.switchPage = (pageName, ...rest) => {
+      const out = origSwitch(pageName, ...rest);
+      renderAksaraRow();
+      if (pageName === 'info' && getIdentity() && getShowInProfile()
+        && !localStorage.getItem('mynahwu_amgz_last_sync')) {
+        syncWithRetry(3);
+      }
+      return out;
+    };
+  }
 });

@@ -1,6 +1,1 @@
-{
- "app": "my-nahwu",
- "build": "2026-11-18T09:25:00Z",
- "notes": "Fase 1 revisi: syncAchievements() ke amgz_users/<amgz_id>/myNahwu (keputusan Bos 16:16 WIB), bukan users/. Tulis klien masih diblokir rules RTDB (.write belum ada) — draf aturan di amgz_users-myNahwu-rules-2026-11-18.json, belum diterbitkan.",
- "version": "1.1.1"
-}
+{"app":"my-nahwu","build":"2026-11-18T09:40:00Z","notes":"v1.1.2: UI Integrasi ala Pusat Akun (kartu Akun AMOGENZ: foto/nama/@username/email/tanggal tertaut + Kelola di portal), SATU status jujur (atas=bawah, 4 keadaan + gagal beralasan), tombol Sinkronkan sekarang + retry otomatis saat buka Pengaturan, pil rank disembunyikan saat 0 jawaban benar, logo Aksara asli (aksara.webp). Perbaikan sync diam-diam 18 Nov 16:37 WIB: syncAchievements() tidak pernah lagi return tanpa mencatat alasan.","version":"1.1.2"}
