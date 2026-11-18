@@ -28,7 +28,7 @@ const REDIRECT = 'https://nahwu.amogenz.my.id/oauth/callback';
 // dilaporkan jujur — JANGAN dialihkan ke node lain.
 // syncAchievements() TIDAK BOLEH gagal diam-diam: setiap kegagalan
 // dicatat alasannya (lastSyncError) dan ditampilkan di UI.
-const FB_API_KEY = '<redacted>';
+const FB_API_KEY = 'AIzaSyAeVLZVH7Chlw1utVt2Z9v87jcZxPZZtpk';
 const RTDB_INC = 'https://amogenz-inc-default-rtdb.asia-southeast1.firebasedatabase.app';
 
 // --- Util -----------------------------------------------------------------
@@ -146,7 +146,22 @@ function buildAchievementPayload() {
 // ID token disimpan lokal (1 jam); refresh via securetoken bila <60 detik.
 // Gagal 404 dari firebase-token = akun AMOGENZ belum tertaut ke Firebase
 // (belum pernah buka/buat akun Aksara) → 'needs-aksara-account', bukan error diam.
+//
+// Kegagalan mengembalikan {ok:false, reason, step, status, detail} —
+// LANGKAH + KODE HTTP-nya ditampilkan di UI (lihat syncErrorText), supaya
+// ketukan "Sinkronkan sekarang" berikutnya langsung menunjukkan titik
+// gagal yang tepat. Pelajaran 18 Nov 16:45 WIB: sync Bos gagal dengan
+// pesan generik "Gagal menghubungkan ke Firebase Aksara" padahal akar
+// masalahnya spesifik — FB_API_KEY di file ini berisi teks harfiah
+// '<redacted>' (bukan kunci web Firebase), sehingga signInWithCustomToken
+// selalu dijawab 400 "API key not valid". Kunci sudah dipulihkan ke kunci
+// web amogenz-inc yang sama dengan live Aksara (v1.1.3); JANGAN pernah
+// mengganti secret dengan teks '<redacted>' di file kode.
 async function getFirebaseIdToken() {
+  if (!FB_API_KEY || FB_API_KEY.length < 20 || !FB_API_KEY.startsWith('AIza')) {
+    console.warn('[aksara] FB_API_KEY tidak valid (bukan kunci web Firebase).');
+    return { ok: false, reason: 'firebase-kunci-salah', step: 'konfigurasi', status: 0 };
+  }
   const exp = Number(localStorage.getItem('mynahwu_fb_expires_at') || 0);
   const cached = localStorage.getItem('mynahwu_fb_id_token');
   if (cached && Date.now() < exp - 60 * 1000) return { ok: true, idToken: cached };
@@ -165,32 +180,52 @@ async function getFirebaseIdToken() {
           String(Date.now() + (Number(t.expires_in) || 3600) * 1000));
         return { ok: true, idToken: t.id_token };
       }
-    } catch (e) { console.warn('[aksara] refresh ID token gagal:', e); }
+      console.warn('[aksara] refresh ID token gagal:', r.status, (t.error && t.error.message) || '');
+    } catch (e) { console.warn('[aksara] refresh ID token gagal (jaringan):', e); }
     localStorage.removeItem('mynahwu_fb_id_token');
     localStorage.removeItem('mynahwu_fb_refresh');
     localStorage.removeItem('mynahwu_fb_expires_at');
   }
   const access = await getAccessToken();
-  if (!access) return { ok: false, reason: 'belum-terhubung' };
-  const fr = await fetch(ACC + '/api/oauth/firebase-token', {
-    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + access },
-    body: JSON.stringify({}),
-  });
-  const fd = await fr.json().catch(() => ({}));
+  if (!access) return { ok: false, reason: 'token-akses-kedaluwarsa', step: 'refresh-token-portal', status: 0 };
+  let fr;
+  let fd = {};
+  try {
+    fr = await fetch(ACC + '/api/oauth/firebase-token', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + access },
+      body: JSON.stringify({}),
+    });
+    fd = await fr.json().catch(() => ({}));
+  } catch (e) {
+    console.warn('[aksara] tukar token portal gagal (jaringan):', e);
+    return { ok: false, reason: 'firebase-token-gagal', step: 'tukar-token-portal', status: 0 };
+  }
   if (!fr.ok) {
-    if (fr.status === 404) return { ok: false, reason: 'needs-aksara-account' };
-    return { ok: false, reason: 'firebase-token-gagal' };
+    console.warn('[aksara] tukar token portal gagal:', fr.status, fd.error || '');
+    if (fr.status === 404) return { ok: false, reason: 'needs-aksara-account', step: 'tukar-token-portal', status: 404 };
+    return { ok: false, reason: 'firebase-token-gagal', step: 'tukar-token-portal', status: fr.status };
   }
   const customToken = fd.firebase_token || fd.customToken;
-  if (!customToken) return { ok: false, reason: 'firebase-token-kosong' };
-  const sr = await fetch(
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=' + FB_API_KEY,
-    {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: customToken, returnSecureToken: true }),
-    });
-  const st = await sr.json().catch(() => ({}));
-  if (!sr.ok || !st.idToken) return { ok: false, reason: 'firebase-signin-gagal' };
+  if (!customToken) return { ok: false, reason: 'firebase-token-kosong', step: 'tukar-token-portal', status: fr.status };
+  let sr;
+  let st = {};
+  try {
+    sr = await fetch(
+      'https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=' + FB_API_KEY,
+      {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: customToken, returnSecureToken: true }),
+      });
+    st = await sr.json().catch(() => ({}));
+  } catch (e) {
+    console.warn('[aksara] masuk Firebase gagal (jaringan):', e);
+    return { ok: false, reason: 'firebase-signin-gagal', step: 'masuk-firebase', status: 0 };
+  }
+  if (!sr.ok || !st.idToken) {
+    const msg = (st.error && st.error.message) || '';
+    console.warn('[aksara] masuk Firebase gagal:', sr.status, msg);
+    return { ok: false, reason: 'firebase-signin-gagal', step: 'masuk-firebase', status: sr.status, detail: msg };
+  }
   localStorage.setItem('mynahwu_fb_id_token', st.idToken);
   if (st.refreshToken) localStorage.setItem('mynahwu_fb_refresh', st.refreshToken);
   localStorage.setItem('mynahwu_fb_expires_at',
@@ -226,12 +261,12 @@ function toRecord(me, payload) {
 // alasannya di lastSyncError dan me-render ulang status — pelajaran dari
 // 18 Nov 16:37 WIB, saat sync Bos gagal tanpa jejak (catatan hanya bilang
 // "belum disinkronkan") padahal loginnya berhasil.
-let lastSyncError = null; // alasan sync terakhir gagal; null = belum pernah gagal / sudah berhasil
+let lastSyncError = null; // {reason, step, status, detail} | null
 
 async function syncAchievements() {
   const me = getIdentity();
   if (!me) {
-    lastSyncError = 'belum-terhubung';
+    lastSyncError = { reason: 'belum-terhubung', step: 'login', status: 0 };
     renderAksaraRow();
     return { ok: false, reason: 'belum-terhubung' };
   }
@@ -242,7 +277,7 @@ async function syncAchievements() {
     console.warn('[aksara] build payload gagal:', e);
   }
   if (!payload) {
-    lastSyncError = 'bridge-skor-belum-siap';
+    lastSyncError = { reason: 'bridge-skor-belum-siap', step: 'siapkan-skor', status: 0 };
     renderAksaraRow();
     return { ok: false, reason: 'bridge-skor-belum-siap' };
   }
@@ -251,14 +286,14 @@ async function syncAchievements() {
     fb = await getFirebaseIdToken();
   } catch (e) {
     console.warn('[aksara] getFirebaseIdToken gagal:', e);
-    lastSyncError = 'firebase-token-gagal';
+    lastSyncError = { reason: 'firebase-token-gagal', step: 'tukar-token-portal', status: 0 };
     renderAksaraRow();
     return { ok: false, reason: 'firebase-token-gagal' };
   }
   if (!fb.ok) {
-    lastSyncError = fb.reason || 'firebase-token-gagal';
+    lastSyncError = { reason: fb.reason || 'firebase-token-gagal', step: fb.step || '', status: fb.status || 0, detail: fb.detail || '' };
     renderAksaraRow();
-    return { ok: false, reason: fb.reason };
+    return { ok: false, reason: fb.reason, step: fb.step, status: fb.status };
   }
   const record = toRecord(me, payload);
   const put = async (token) => fetch(
@@ -274,16 +309,16 @@ async function syncAchievements() {
     }
   } catch (e) {
     console.warn('[aksara] tulis myNahwu gagal (jaringan):', e);
-    lastSyncError = 'tulis-gagal';
+    lastSyncError = { reason: 'tulis-gagal', step: 'tulis-pencapaian', status: 0 };
     renderAksaraRow();
     return { ok: false, reason: 'tulis-gagal' };
   }
   if (!r.ok) {
     const t = await r.text().catch(() => '');
     console.warn('[aksara] tulis myNahwu gagal:', r.status, t.slice(0, 120));
-    lastSyncError = r.status === 403 ? 'tulis-ditolak-rules' : 'tulis-gagal';
+    lastSyncError = { reason: r.status === 403 ? 'tulis-ditolak-rules' : 'tulis-gagal', step: 'tulis-pencapaian', status: r.status };
     renderAksaraRow();
-    return { ok: false, reason: lastSyncError, status: r.status };
+    return { ok: false, reason: lastSyncError.reason, status: r.status };
   }
   lastSyncError = null;
   localStorage.setItem('mynahwu_amgz_last_sync', String(Date.now()));
@@ -300,7 +335,7 @@ async function syncWithRetry(maxAttempts = 3) {
     if (res.reason === 'belum-terhubung' || res.reason === 'needs-aksara-account') return res;
     if (i < maxAttempts) await new Promise((r) => setTimeout(r, 1500 * i));
   }
-  return { ok: false, reason: lastSyncError };
+  return { ok: false, reason: lastSyncError ? lastSyncError.reason : 'tulis-gagal' };
 }
 
 // --- Status sinkronisasi di UI: SATU sumber kebenaran -----------------------
@@ -308,16 +343,29 @@ async function syncWithRetry(maxAttempts = 3) {
 // SELALU berasal dari keadaan yang sama — tidak boleh bertentangan lagi
 // (sebelumnya: atas bilang "tampil di profil" padahal bawah bilang
 // "belum disinkronkan" — itu yang membingungkan Bos).
-const SYNC_REASON_TEXT = {
-  'bridge-skor-belum-siap': 'Skor My Nahwu belum siap — tutup lalu buka lagi Pengaturan.',
-  'belum-terhubung': 'Belum terhubung — masuk dulu dengan Akun AMOGENZ.',
-  'needs-aksara-account': 'Akun Aksara belum ada — buka app Aksara dulu untuk membuat profil, lalu kembali ke sini.',
-  'firebase-token-gagal': 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.',
-  'firebase-signin-gagal': 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.',
-  'firebase-token-kosong': 'Gagal menghubungkan ke Firebase Aksara — coba lagi nanti.',
-  'tulis-ditolak-rules': 'Sinkronisasi ditolak server (izin tulis). Login tetap tersimpan; coba lagi nanti.',
-  'tulis-gagal': 'Sinkronisasi gagal — periksa koneksi lalu ketuk “Sinkronkan sekarang”.',
-};
+// Pesan gagal sync yang SPESIFIK: langkah + kode HTTP + detail server
+// (bukan lagi "Gagal menghubungkan ke Firebase Aksara — coba lagi nanti"
+// untuk semua sebab). detail dari Identity Toolkit aman ditampilkan
+// (mis. "API key not valid") — tidak mengandung secret.
+function syncErrorText(err) {
+  if (!err) return 'Sinkronisasi gagal — coba lagi nanti.';
+  const e = typeof err === 'string' ? { reason: err, status: 0, detail: '' } : err;
+  const kode = e.status ? ' (' + e.status + ')' : '';
+  switch (e.reason) {
+    case 'bridge-skor-belum-siap': return 'Skor My Nahwu belum siap — tutup lalu buka lagi Pengaturan.';
+    case 'belum-terhubung': return 'Belum terhubung — masuk dulu dengan Akun AMOGENZ.';
+    case 'needs-aksara-account': return 'Akun Aksara belum ada — buka app Aksara dulu untuk membuat profil, lalu kembali ke sini.';
+    case 'token-akses-kedaluwarsa': return 'Token akses Akun AMOGENZ kedaluwarsa — masuk ulang dengan Akun AMOGENZ.';
+    case 'firebase-kunci-salah': return 'Kunci API Firebase salah konfigurasi — laporkan ke pengembang.';
+    case 'firebase-refresh-gagal': return 'Gagal memperbarui token Firebase' + kode + ' — coba lagi nanti.';
+    case 'firebase-token-gagal': return 'Gagal menukar token di portal Akun AMOGENZ' + kode + ' — coba lagi nanti.';
+    case 'firebase-token-kosong': return 'Portal tidak mengembalikan token Firebase — coba lagi nanti.';
+    case 'firebase-signin-gagal': return 'Gagal masuk Firebase Aksara' + kode + (e.detail ? ' — ' + e.detail : '') + ' — coba lagi nanti.';
+    case 'tulis-ditolak-rules': return 'Sinkronisasi ditolak server (izin tulis' + kode + '). Login tetap tersimpan; coba lagi nanti.';
+    case 'tulis-gagal': return 'Sinkronisasi gagal' + kode + ' — periksa koneksi lalu ketuk “Sinkronkan sekarang”.';
+    default: return 'Sinkronisasi gagal — coba lagi nanti.';
+  }
+}
 
 function syncState() {
   const me = getIdentity();
@@ -351,9 +399,9 @@ function applySyncStatus() {
     el.textContent = 'Pencapaian belum terkirim ke profil Aksara. Ketuk “Sinkronkan sekarang” di bawah.';
   } else if (state === 'tersinkron') {
     el.textContent = 'Pencapaian disinkronkan ke profil Aksara' + (jam ? ' · ' + jam : '') + '.'
-      + (lastSyncError ? ' Sinkronisasi terakhir gagal: ' + (SYNC_REASON_TEXT[lastSyncError] || 'coba lagi nanti.') : '');
+      + (lastSyncError ? ' Sinkronisasi terakhir gagal: ' + syncErrorText(lastSyncError) : '');
   } else { // gagal
-    el.textContent = (SYNC_REASON_TEXT[lastSyncError] || 'Sinkronisasi gagal — coba lagi nanti.')
+    el.textContent = syncErrorText(lastSyncError)
       + ' Ketuk “Sinkronkan sekarang” untuk mencoba lagi.';
   }
 }
@@ -363,13 +411,13 @@ function setSyncNote(state) {
   if (state === 'ok') {
     lastSyncError = null;
   } else if (state === 'sync-gagal') {
-    lastSyncError = 'tulis-gagal';
+    lastSyncError = { reason: 'tulis-gagal', step: 'tulis-pencapaian', status: 0 };
   } else if (state === 'sync-diblokir') {
-    lastSyncError = 'tulis-ditolak-rules';
+    lastSyncError = { reason: 'tulis-ditolak-rules', step: 'tulis-pencapaian', status: 403 };
   } else if (state === 'needs-aksara-account' || state === 'firebase-token-gagal'
     || state === 'firebase-signin-gagal' || state === 'firebase-token-kosong'
     || state === 'bridge-skor-belum-siap' || state === 'belum-terhubung') {
-    lastSyncError = state;
+    lastSyncError = { reason: state, step: '', status: 0 };
   } else {
     lastSyncError = null; // 'belum' generik = belum pernah tersinkron, bukan error
   }
@@ -416,11 +464,15 @@ function renderAksaraRow() {
     if (me.picture) {
       avatarImg.src = me.picture;
       avatarImg.hidden = false;
+      avatarImg.style.display = 'block';
       avatarFb.hidden = true;
+      avatarFb.style.display = 'none';
     } else {
       avatarImg.hidden = true;
+      avatarImg.style.display = 'none';
       avatarFb.textContent = initial;
       avatarFb.hidden = false;
+      avatarFb.style.display = 'flex';
     }
   }
   if (sinceEl) {
