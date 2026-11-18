@@ -1,3 +1,8 @@
+/* Atribut hidden harus selalu menang — sebelumnya .amgz-avatar-fallback
+   (display:flex) menimpa hidden sehingga foto profil dan huruf "A"
+   tampil bersamaan (18 Nov 16:45 WIB). */
+[hidden] { display: none !important; }
+
 /* ==========================================
    My Nahwu - HIGH-PERFORMANCE iOS LIGHT THEME
    ========================================== */
