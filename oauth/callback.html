@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk dengan AMOGENZ…</title>
+<style>
+body{background:#101210;color:#F2F3F0;font-family:system-ui,-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.box{text-align:center;padding:24px}
+.box img{width:40px;height:40px;object-fit:contain}
+.spin{width:28px;height:28px;border:3px solid #2E7D32;border-top-color:#4CAF50;border-radius:50%;margin:16px auto;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.err{color:#E5484D;max-width:320px}
+.box a{color:#4CAF50}
+</style>
+</head>
+<body>
+<div class="box">
+  <img src="https://amogenz.xyz/owl-amogenz-v1.webp" alt="AMOGENZ" onerror="this.style.display='none'">
+  <div class="spin" id="spin"></div>
+  <p id="msg">Masuk dengan AMOGENZ…</p>
+  <p id="back" hidden><a href="/">Kembali ke My Nahwu</a></p>
+</div>
+<script type="module">
+// Callback OAuth My Nahwu — pola Aksara (community.js + oauth-callback.html),
+// disesuaikan: klien my-nahwu, tanpa langkah firebase-token DI SINI
+// (langkah itu ada di nahwu-login.js, dijalankan lazily saat sinkronisasi,
+// supaya callback tetap cepat dan tidak gagal login bila Firebase belum tertaut).
+// Identitas diambil dari /api/oauth/userinfo; amgz_id (sub) adalah primary key.
+const ACC = "https://account.amogenz.xyz";
+const CLIENT_ID = "my-nahwu";
+const REDIRECT = "https://nahwu.amogenz.my.id/oauth/callback";
+
+const msg = (t, err) => {
+  document.getElementById('msg').textContent = t;
+  if (err) {
+    document.getElementById('msg').className = 'err';
+    document.getElementById('spin').style.display = 'none';
+    document.getElementById('back').hidden = false;
+  }
+};
+
+try {
+  const q = new URLSearchParams(location.search);
+  const code = q.get('code');
+  const err = q.get('error');
+  const retState = q.get('state');
+  if (err) throw new Error('Login dibatalkan.');
+  if (!code) throw new Error('Kode tidak ditemukan.');
+  // PKCE verifier di localStorage (tahan pindah tab, dibersihkan setelah pakai)
+  const verifier = localStorage.getItem('amgz_pkce_v') || sessionStorage.getItem('amgz_pkce_v');
+  if (!verifier) throw new Error('Sesi login kedaluwarsa. Coba lagi.');
+  // Verifikasi state (CSRF) — fail-closed: state tak cocok = berhenti
+  const savedState = localStorage.getItem('amgz_oauth_state') || sessionStorage.getItem('amgz_oauth_state');
+  localStorage.removeItem('amgz_pkce_v');
+  localStorage.removeItem('amgz_oauth_state');
+  sessionStorage.removeItem('amgz_pkce_v');
+  sessionStorage.removeItem('amgz_oauth_state');
+  if (savedState && retState !== savedState) throw new Error('State tidak cocok. Coba lagi.');
+
+  msg('Menukar kode…');
+  const tr = await fetch(ACC + '/api/oauth/token', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      grant_type: 'authorization_code', code,
+      redirect_uri: REDIRECT, client_id: CLIENT_ID,
+      code_verifier: verifier,
+    }),
+  });
+  const tokens = await tr.json();
+  if (!tr.ok) throw new Error(tokens.error_description || 'Gagal menukar kode.');
+
+  msg('Mengambil profil…');
+  const ur = await fetch(ACC + '/api/oauth/userinfo', {
+    headers: { 'Authorization': 'Bearer ' + tokens.access_token },
+  });
+  const me = await ur.json();
+  if (!ur.ok || !me.sub) throw new Error('Gagal mengambil profil Akun AMOGENZ.');
+
+  // Simpan identitas + token di perangkat ini saja (localStorage origin My Nahwu).
+  // JANGAN simpan sandi — tidak ada sandi yang pernah lewat sini.
+  const now = Date.now();
+  localStorage.setItem('mynahwu_amgz_access', tokens.access_token);
+  if (tokens.refresh_token) localStorage.setItem('mynahwu_amgz_refresh', tokens.refresh_token);
+  localStorage.setItem('mynahwu_amgz_expires_at', String(now + (tokens.expires_in || 3600) * 1000));
+  localStorage.setItem('mynahwu_amgz_id', me.sub);
+  localStorage.setItem('mynahwu_amgz_username', me.preferred_username || '');
+  localStorage.setItem('mynahwu_amgz_name', me.name || me.preferred_username || '');
+  localStorage.setItem('mynahwu_amgz_email', me.email || '');
+  if (me.picture) localStorage.setItem('mynahwu_amgz_picture', me.picture);
+  localStorage.setItem('mynahwu_amgz_linked_at', String(now));
+
+  msg('Terhubung! Membuka My Nahwu…');
+  location.href = '/?aksara=linked';
+} catch (e) {
+  msg('Gagal: ' + (e.message || 'coba lagi.'), true);
+}
+</script>
+</body>
+</html>

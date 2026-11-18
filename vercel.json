@@ -1,0 +1,1 @@
+{"headers":[{"headers":[{"key":"Cache-Control","value":"no-cache, no-store, must-revalidate"}],"source":"/(.*\\.html)"},{"headers":[{"key":"Cache-Control","value":"no-cache, no-store, must-revalidate"}],"source":"/"}],"rewrites":[{"destination":"/oauth/callback.html","source":"/oauth/callback"}],"version":2}

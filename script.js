@@ -2176,6 +2176,27 @@ if (btnBackExplore) {
         });
     }
 
+    // --- JEMBATAN AKSARA (Fase 1) -------------------------------------------
+    // Ekspos skor lokal (masih 100% localStorage) ke nahwu-login.js agar
+    // pencapaian bisa dikirim ke profil Aksara setelah login AMOGENZ.
+    // Tidak ada data yang dikirim dari sini — pengiriman hanya terjadi
+    // dari nahwu-login.js sesudah pengguna menautkan akun.
+    window.MyNahwuBridge = {
+        getScore: getSecureScore,
+        getRank: calculateUserRank,
+        getMedals: getUnlockedMedals,
+        getLevel: () => getLevelLabel(currentDatabase),
+        getDbKey: () => currentDatabase,
+        switchPage,
+        showToast,
+    };
+    // Kembali dari login AMOGENZ (?aksara=linked) → buka Pengaturan.
+    if (new URLSearchParams(location.search).get('aksara') === 'linked') {
+        switchPage('info');
+        showToast('Akun Aksara terhubung');
+        history.replaceState(null, '', location.pathname);
+    }
+
     //// init akhir
 }
 

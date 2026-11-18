@@ -2577,3 +2577,82 @@ body[data-event] .rpc-bar-fill {
     gap: 6px;
     margin-bottom: 2px;
 }
+
+/* ==========================================
+   INTEGRASI AKSARA — Fase 1 (token VIBE saja)
+   ========================================== */
+.item-icon-box.amgz {
+    background: #4CAF50;
+    color: #FFFFFF;
+}
+.aksara-box {
+    width: 100%;
+    margin-top: 12px;
+}
+.aksara-btn-login {
+    width: 100%;
+    background: #4CAF50;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.aksara-btn-login:active {
+    filter: brightness(0.92);
+}
+.aksara-note {
+    margin: 8px 2px 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: #5A5E58;
+}
+.aksara-linked-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+.aksara-linked-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #20221F;
+}
+.aksara-linked-info small {
+    font-size: 0.75rem;
+    color: #5A5E58;
+}
+.aksara-linked-rank {
+    display: inline-block;
+    background: #4CAF50;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    border-radius: 999px;
+    padding: 5px 12px;
+    margin-bottom: 12px;
+}
+.aksara-show-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0 12px;
+}
+.aksara-show-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #20221F;
+}
+.aksara-disconnect {
+    width: 100%;
+    justify-content: center;
+}

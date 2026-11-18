@@ -46,7 +46,7 @@
      <!-- UMAMI ANALYTICS TRACKER -->
     <script defer src="https://cloud.umami.is/script.js" data-website-id="310f20f9-c0a5-4895-a38e-264b97f6a7d3"></script>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 
     <!-- VERCEL WEB ANALYTICS -->
     <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
@@ -768,6 +768,51 @@
                         </div>
                     </div>
 
+                    <!-- INTEGRASI AKUN AMOGENZ (Fase 1) -->
+                    <div class="ios-inset-group" style="margin-top: 6px;">
+                        <div class="group-header">INTEGRASI</div>
+                        <div class="ios-inset-list">
+                            <!-- AKUN AKSARA -->
+                            <div class="list-item column">
+                                <div class="item-left">
+                                    <div class="item-icon-box amgz">
+                                        <i class="ph-fill ph-chats-circle"></i>
+                                    </div>
+                                    <div class="item-label">
+                                        <span>Aksara</span>
+                                        <small id="aksara-status-text">Tampilkan rank, poin &amp; medali di profil Aksara</small>
+                                    </div>
+                                </div>
+                                <!-- Belum terhubung -->
+                                <div id="aksara-login-box" class="aksara-box">
+                                    <button id="btn-amogenz-login" class="aksara-btn-login">
+                                        <i class="ph-bold ph-sign-in"></i> Masuk dengan AMOGENZ
+                                    </button>
+                                    <p class="aksara-note">Login memakai Akun AMOGENZ. My Nahwu tidak pernah menerima sandi kamu.</p>
+                                </div>
+                                <!-- Sudah terhubung -->
+                                <div id="aksara-linked-box" class="aksara-box" hidden>
+                                    <div class="aksara-linked-info">
+                                        <span id="aksara-linked-name" class="aksara-linked-name">—</span>
+                                        <small id="aksara-linked-sub">Tertaut ke @—</small>
+                                    </div>
+                                    <div class="aksara-linked-rank" id="aksara-linked-rank">—</div>
+                                    <div class="aksara-show-row">
+                                        <span class="aksara-show-label">Tampilkan di profil Aksara</span>
+                                        <label class="ios-switch">
+                                            <input type="checkbox" id="aksara-show-toggle" checked>
+                                            <span class="switch-slider"></span>
+                                        </label>
+                                    </div>
+                                    <button id="btn-aksara-disconnect" class="ios-pill-btn danger aksara-disconnect">
+                                        <i class="ph-bold ph-link-break"></i> Putuskan koneksi
+                                    </button>
+                                    <p class="aksara-note" id="aksara-sync-note">Pencapaian disinkronkan ke profil Aksara.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- PENYIMPANAN CACHE & RESET DATA -->
                     <div class="ios-inset-group" style="margin-top: 6px;">
                         <div class="group-header">PENYIMPANAN & PEMBERSIHAN MEMORI</div>
@@ -1034,6 +1079,7 @@
 
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script.js?v=2"></script>
+    <script type="module" src="nahwu-login.js?v=2"></script>
 </body>
 </html>
